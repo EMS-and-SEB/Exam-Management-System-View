@@ -1,0 +1,1 @@
+export type StaffRole = 'INSTRUCTOR' | 'EXIT_EXAM_COORDINATOR' | 'INVIGILATOR' | 'EXAM_ADMIN';
