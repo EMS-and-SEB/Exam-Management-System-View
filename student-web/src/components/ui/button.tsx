@@ -54,4 +54,7 @@ function Button({
   )
 }
 
+// Shared shadcn button also exports `buttonVariants` (matching staff-portal),
+// which react-refresh flags; the constant is used by other components.
+// eslint-disable-next-line react-refresh/only-export-components
 export { Button, buttonVariants }
