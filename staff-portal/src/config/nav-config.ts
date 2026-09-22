@@ -16,7 +16,7 @@ export const navConfig: NavItem[] = [
   { label: 'Dashboard', path: '/dashboard', icon: LayoutGrid, color: 'text-blue-500', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR', 'EXAM_ADMIN'] },
   { label: 'Courses', path: '/courses', icon: Users, color: 'text-emerald-500', roles: ['INSTRUCTOR', 'EXAM_ADMIN'] },
   { label: 'Cohorts', path: '/cohorts', icon: Users, color: 'text-emerald-500', roles: ['EXIT_EXAM_COORDINATOR', 'EXAM_ADMIN'] },
-  { label: 'Students', path: '/students', icon: UserCog, color: 'text-cyan-500', roles: ['EXIT_EXAM_COORDINATOR', 'EXAM_ADMIN'] },
+  { label: 'Students', path: '/students', icon: UserCog, color: 'text-cyan-500', roles: ['EXAM_ADMIN'] },
   { label: 'Exams & Assessments', path: '/exams', icon: ClipboardList, color: 'text-blue-500', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR'] },
   { label: 'Question Bank', path: '/questions', icon: BookOpen, color: 'text-amber-500', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR'] },
   { label: 'Invigilation', path: '/invigilation', icon: Eye, color: 'text-violet-500', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR'] },

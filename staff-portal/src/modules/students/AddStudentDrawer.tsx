@@ -36,6 +36,7 @@ export function AddStudentDrawer({ open, onOpenChange }: AddStudentDrawerProps) 
       icon={<UserPlus className="h-4 w-4" />}
       title="Add Student"
       subtitle="Add a single student to the directory."
+      footerPlacement="inline"
       footer={
         <>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>

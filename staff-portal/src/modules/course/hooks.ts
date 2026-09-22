@@ -5,8 +5,8 @@ import { coursesApi } from './api';
 const COURSES_KEY = ['courses'] as const;
 const enrollmentsKey = (courseId: string) => ['courses', courseId, 'enrollments'];
 
-export function useCourses() {
-  return useQuery({ queryKey: COURSES_KEY, queryFn: coursesApi.list });
+export function useCourses(enabled = true) {
+  return useQuery({ queryKey: COURSES_KEY, queryFn: coursesApi.list, enabled });
 }
 
 export function useCourse(id: string) {
@@ -41,6 +41,7 @@ export function useEnrollments(courseId: string) {
     queryKey: enrollmentsKey(courseId),
     queryFn: () => coursesApi.listEnrollments(courseId),
     enabled: !!courseId,
+    retry: false,
   });
 }
 

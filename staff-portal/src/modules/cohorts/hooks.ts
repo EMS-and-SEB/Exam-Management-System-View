@@ -5,8 +5,8 @@ import { cohortsApi } from './api';
 const COHORTS_KEY = ['cohorts'] as const;
 const membersKey = (cohortId: string) => ['cohorts', cohortId, 'members'];
 
-export function useCohorts() {
-  return useQuery({ queryKey: COHORTS_KEY, queryFn: cohortsApi.list });
+export function useCohorts(enabled = true) {
+  return useQuery({ queryKey: COHORTS_KEY, queryFn: cohortsApi.list, enabled });
 }
 
 export function useCohort(id: string) {
@@ -41,6 +41,7 @@ export function useMembers(cohortId: string) {
     queryKey: membersKey(cohortId),
     queryFn: () => cohortsApi.listMembers(cohortId),
     enabled: !!cohortId,
+    retry: false,
   });
 }
 
@@ -84,9 +85,6 @@ export function useRemoveMember(cohortId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: membersKey(cohortId) });
       toast.success('Student removed from cohort.');
-    },
-    onError: (error) => {
-      toast.error(error instanceof Error ? error.message : 'Failed to remove student.');
     },
   });
 }

@@ -74,6 +74,7 @@ function CourseFormDrawerInner({ open, onOpenChange, course }: CourseFormDrawerP
       icon={<BookOpen className="h-4 w-4" />}
       title={isEdit ? 'Edit Course' : 'Create Course'}
       subtitle={isEdit ? course?.name : 'Create a course and assign its instructor.'}
+      footerPlacement="inline"
       footer={
         <>
           <Button variant="outline" onClick={() => handleOpenChange(false)}>Cancel</Button>

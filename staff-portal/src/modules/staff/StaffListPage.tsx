@@ -66,7 +66,6 @@ export function StaffListPage() {
         data={data?.staff ?? []}
         isLoading={isLoading}
         emptyMessage="No staff accounts found."
-        onRowClick={setEditingStaff}
         manualPagination={{
           pageIndex: page,
           pageCount: data?.totalPages ?? 0,

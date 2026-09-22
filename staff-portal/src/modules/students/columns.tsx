@@ -1,10 +1,7 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
-import { MoreVertical, Pencil } from 'lucide-react';
+import { MoreVertical } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import type { Student } from './api';
 
 interface GetColumnsArgs {
@@ -43,17 +40,17 @@ export function getStudentColumns({ onEdit }: GetColumnsArgs): ColumnDef<Student
       enableSorting: false,
       cell: ({ row }) => (
         <div className="text-right">
-          <DropdownMenu>
-            <DropdownMenuTrigger render={<button type="button" aria-label="Row actions" />}>
-              <MoreVertical className="h-4 w-4 text-muted-foreground" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onEdit(row.original)}>
-                <Pencil className="mr-2 h-4 w-4" />
-                Edit
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <button
+            type="button"
+            aria-label={`Edit ${row.original.name}`}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+            onClick={(event) => {
+              event.stopPropagation();
+              onEdit(row.original);
+            }}
+          >
+            <MoreVertical className="h-4 w-4" />
+          </button>
         </div>
       ),
     },

@@ -67,8 +67,8 @@ export function CohortRosterPage() {
         open={!!removeTarget}
         onOpenChange={(open) => !open && setRemoveTarget(null)}
         title="Remove student from cohort?"
-        description={`${removeTarget?.studentName} will be removed from this cohort. This cannot be done once the exit exam has been released.`}
-        confirmLabel="Remove"
+        description={`${removeTarget?.studentName} will be removed from this cohort. Any existing exam history for this cohort will be kept.`}
+        confirmLabel="Remove from cohort"
         variant="destructive"
         isLoading={removeMember.isPending}
         onConfirm={() => removeTarget && removeMember.mutate(removeTarget.studentId, { onSuccess: () => setRemoveTarget(null) })}

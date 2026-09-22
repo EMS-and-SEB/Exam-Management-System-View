@@ -4,16 +4,11 @@ import { cn } from '@/lib/utils';
 type StatusVariant = 'success' | 'warning' | 'danger' | 'info' | 'neutral';
 
 const STATUS_MAP: Record<string, StatusVariant> = {
-  // exam / course / cohort lifecycle
   DRAFT: 'neutral', ACTIVE: 'success', RELEASED: 'info', CLOSED: 'neutral', ARCHIVED: 'neutral',
-  // session / exam-taking
   NOT_STARTED: 'neutral', IN_PROGRESS: 'info', SUBMITTED: 'success',
   FORCE_SUBMITTED: 'warning', EXPIRED: 'warning', DISCONNECTED: 'danger',
-  // staff / student account state
   INACTIVE: 'neutral',
-  // grading
   NEEDS_GRADING: 'warning', GRADED: 'success', AUTO_GRADED: 'success',
-  // incidents
   INCIDENT: 'danger',
 };
 

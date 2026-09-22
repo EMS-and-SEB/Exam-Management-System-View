@@ -68,7 +68,6 @@ export function StudentDirectoryPage() {
         data={data?.students ?? []}
         isLoading={isLoading}
         emptyMessage="No students found."
-        onRowClick={setEditingStudent}
         manualPagination={{
           pageIndex: page,
           pageCount: data?.totalPages ?? 0,

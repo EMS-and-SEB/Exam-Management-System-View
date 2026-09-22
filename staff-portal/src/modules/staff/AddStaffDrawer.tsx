@@ -60,13 +60,13 @@ export function AddStaffDrawer({ open, onOpenChange }: AddStaffDrawerProps) {
 
         <Field data-invalid={!!form.formState.errors.name}>
           <FieldLabel>Full Name</FieldLabel>
-          <Input placeholder="e.g. Dr. Sara Jenkins" {...form.register('name')} />
+          <Input placeholder="e.g. Dr. Aklilu Tessema" {...form.register('name')} />
           {form.formState.errors.name && <FieldError errors={[form.formState.errors.name]} />}
         </Field>
 
         <Field data-invalid={!!form.formState.errors.email}>
           <FieldLabel>Institutional Email</FieldLabel>
-          <Input placeholder="s.jenkins@university.edu" {...form.register('email')} />
+          <Input placeholder="aklilu@aau.edu.et" {...form.register('email')} />
           {form.formState.errors.email && <FieldError errors={[form.formState.errors.email]} />}
         </Field>
 

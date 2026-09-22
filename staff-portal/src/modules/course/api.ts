@@ -48,5 +48,5 @@ export const coursesApi = {
       .then((r) => r.data);
   },
   removeEnrollment: (courseId: string, studentId: string) =>
-    http.delete(`/courses/${courseId}/enrollments/${studentId}`),
+    http.delete(`/courses/${courseId}/enrollments/${encodeURIComponent(studentId)}`),
 };

@@ -13,6 +13,7 @@ interface DrawerShellProps {
   children: React.ReactNode;
   footer?: React.ReactNode;
   footerLeft?: React.ReactNode;
+  footerPlacement?: 'bottom' | 'inline';
   width?: 'md' | 'lg' | 'xl';
 }
 
@@ -20,10 +21,22 @@ const WIDTH_CLASSES = { md: 'sm:max-w-md', lg: 'sm:max-w-lg', xl: 'sm:max-w-2xl'
 
 export function DrawerShell({
   open, onOpenChange, icon, title, subtitle, badge, children, footer, footerLeft, width = 'md',
+  footerPlacement = 'bottom',
 }: DrawerShellProps) {
+  const hasFooter = footer || footerLeft;
+  const footerContent = hasFooter && (
+    <div className={cn(
+      'flex items-center justify-between gap-3',
+      footerPlacement === 'bottom' ? 'border-t px-6 py-4' : 'mt-6',
+    )}>
+      <div className="text-sm text-muted-foreground">{footerLeft}</div>
+      <div className="flex gap-2">{footer}</div>
+    </div>
+  );
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className={cn('flex flex-col p-0 gap-0', WIDTH_CLASSES[width])}>
+      <SheetContent showCloseButton={false} className={cn('flex flex-col p-0 gap-0', WIDTH_CLASSES[width])}>
         <div className="flex items-start justify-between gap-3 border-b px-6 py-4">
           <div className="flex items-start gap-3 min-w-0">
             {icon && (
@@ -44,14 +57,12 @@ export function DrawerShell({
           </Button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-6 py-4">{children}</div>
+        <div className="drawer-scrollbar flex-1 overflow-y-auto px-6 py-4">
+          {children}
+          {footerPlacement === 'inline' && footerContent}
+        </div>
 
-        {(footer || footerLeft) && (
-          <div className="flex items-center justify-between gap-3 border-t px-6 py-4">
-            <div className="text-sm text-muted-foreground">{footerLeft}</div>
-            <div className="flex gap-2">{footer}</div>
-          </div>
-        )}
+        {footerPlacement === 'bottom' && footerContent}
       </SheetContent>
     </Sheet>
   );

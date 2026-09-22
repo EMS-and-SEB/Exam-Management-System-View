@@ -9,15 +9,28 @@ import type { StaffRole } from '@/types/role';
 
 interface GetColumnsArgs {
   viewerRole: StaffRole;
+  onView: (course: Course) => void;
   onEdit: (course: Course) => void;
   onToggleArchive: (course: Course) => void;
 }
 
-export function getCourseColumns({ viewerRole, onEdit, onToggleArchive }: GetColumnsArgs): ColumnDef<Course, unknown>[] {
+export function getCourseColumns({ viewerRole, onView, onEdit, onToggleArchive }: GetColumnsArgs): ColumnDef<Course, unknown>[] {
   const isAdmin = viewerRole === 'EXAM_ADMIN';
 
   const columns: ColumnDef<Course, unknown>[] = [
-    { accessorKey: 'name', header: 'Course Name' },
+    {
+      accessorKey: 'name',
+      header: 'Course Name',
+      cell: ({ row }) => (
+        <button
+          type="button"
+          className="font-medium text-left text-primary"
+          onClick={() => onView(row.original)}
+        >
+          {row.original.name}
+        </button>
+      ),
+    },
     { accessorKey: 'status', header: 'Status', cell: ({ row }) => <StatusBadge status={row.original.status} /> },
   ];
 

@@ -64,8 +64,8 @@ export function CourseRosterPage() {
         open={!!removeTarget}
         onOpenChange={(open) => !open && setRemoveTarget(null)}
         title="Remove student from course?"
-        description={`${removeTarget?.studentName} will be removed from this course's roster.`}
-        confirmLabel="Remove"
+        description={`${removeTarget?.studentName} will be removed from this course's roster. Any existing exam history for this course will be kept.`}
+        confirmLabel="Remove from course"
         variant="destructive"
         isLoading={removeEnrollment.isPending}
         onConfirm={() => removeTarget && removeEnrollment.mutate(removeTarget.studentId, { onSuccess: () => setRemoveTarget(null) })}

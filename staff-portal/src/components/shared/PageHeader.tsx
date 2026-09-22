@@ -1,11 +1,12 @@
 import { ArrowLeft } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 
 interface PageHeaderProps {
   title: string;
-  badge?: string;
+  badge?: ReactNode;
   subtitle?: string;
   backTo?: string;
   actions?: React.ReactNode;
@@ -30,11 +31,11 @@ export function PageHeader({ title, badge, subtitle, backTo, actions }: PageHead
         )}
         <div className="flex items-center gap-2.5">
           <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
-          {badge && (
+          {typeof badge === 'string' ? (
             <Badge variant="secondary" className="font-medium">
               {badge}
             </Badge>
-          )}
+          ) : badge}
         </div>
         {subtitle && <p className="text-sm text-muted-foreground max-w-2xl">{subtitle}</p>}
       </div>

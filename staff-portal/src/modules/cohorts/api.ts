@@ -12,6 +12,7 @@ export interface Cohort {
 interface CohortMember {
   id: string;
   studentId: string;
+  deletedAt: string | null;
   createdAt: string;
   student: { studentId: string; name: string };
 }
@@ -47,5 +48,5 @@ export const cohortsApi = {
       .then((r) => r.data);
   },
   removeMember: (cohortId: string, studentId: string) =>
-    http.delete(`/cohorts/${cohortId}/members/${studentId}`),
+    http.delete(`/cohorts/${cohortId}/members/${encodeURIComponent(studentId)}`),
 };

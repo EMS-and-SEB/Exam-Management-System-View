@@ -23,6 +23,7 @@ export function CourseListPage() {
 
   const columns = getCourseColumns({
     viewerRole: role,
+    onView: (course) => navigate(`/courses/${course.id}`),
     onEdit: (course) => { setEditingCourse(course); setFormOpen(true); },
     onToggleArchive: setArchiveTarget,
   });
@@ -56,7 +57,6 @@ export function CourseListPage() {
         data={courses ?? []}
         isLoading={isLoading}
         emptyMessage="No courses found."
-        onRowClick={(course) => navigate(`/courses/${course.id}`)}
       />
 
       <CourseFormDrawer open={formOpen} onOpenChange={setFormOpen} course={editingCourse} />

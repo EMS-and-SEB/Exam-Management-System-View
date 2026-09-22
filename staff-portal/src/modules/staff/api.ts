@@ -29,4 +29,8 @@ export const staffApi = {
 
   update: (id: string, data: { name?: string; email?: string; isActive?: boolean }) =>
     http.patch<StaffMember>(`/staff/${id}`, data).then((r) => r.data),
+
+  getProfile: () => http.get<StaffMember>('/staff/me').then((r) => r.data),
+  updateProfile: (data: { name?: string; email?: string }) =>
+    http.patch<StaffMember>('/staff/me', data).then((r) => r.data),
 };

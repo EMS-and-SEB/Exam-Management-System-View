@@ -74,6 +74,7 @@ function CohortFormDrawerInner({ open, onOpenChange, cohort }: CohortFormDrawerP
       icon={<Layers className="h-4 w-4" />}
       title={isEdit ? 'Edit Cohort' : 'Create Cohort'}
       subtitle={isEdit ? cohort?.name : 'Create a cohort and assign its coordinator.'}
+      footerPlacement="inline"
       footer={
         <>
           <Button variant="outline" onClick={() => handleOpenChange(false)}>Cancel</Button>

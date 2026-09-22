@@ -143,10 +143,11 @@ export function AddToRosterDrawer({
         </TabsContent>
 
         <TabsContent value="bulk" className="pt-4 space-y-4">
-          <div className="rounded-lg border-2 border-dashed p-6 text-center">
-            <input type="file" accept=".csv,text/csv" onChange={(e) => setFile(e.target.files?.[0] ?? null)} className="text-sm" />
-            {file && <p className="text-xs text-muted-foreground mt-2">{file.name}</p>}
-          </div>
+          <label className="block cursor-pointer rounded-lg border-2 border-dashed p-6 text-center">
+            <input type="file" accept=".csv,text/csv" onChange={(e) => setFile(e.target.files?.[0] ?? null)} className="sr-only" />
+            <span className="text-sm text-muted-foreground">Choose a CSV file</span>
+            {file && <p className="mt-2 text-xs text-muted-foreground">{file.name}</p>}
+          </label>
 
           {bulkResult && (
             <div className="space-y-2">

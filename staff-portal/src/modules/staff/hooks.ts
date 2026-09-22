@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { staffApi } from './api';
+import { useAuthStore } from '@/store/auth.store';
 
 const STAFF_KEY = ['staff'] as const;
 
@@ -46,6 +47,18 @@ export function useUpdateStaff() {
             ? 'Staff account reactivated.'
             : 'Staff account updated.',
       );
+    },
+  });
+}
+
+export function useUpdateProfile() {
+  const updateUser = useAuthStore((state) => state.updateUser);
+
+  return useMutation({
+    mutationFn: staffApi.updateProfile,
+    onSuccess: (staff) => {
+      updateUser(staff);
+      toast.success('Profile updated.');
     },
   });
 }

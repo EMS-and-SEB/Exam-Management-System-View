@@ -23,6 +23,7 @@ export function CohortListPage() {
 
   const columns = getCohortColumns({
     viewerRole: role,
+    onView: (cohort) => navigate(`/cohorts/${cohort.id}`),
     onEdit: (cohort) => { setEditingCohort(cohort); setFormOpen(true); },
     onToggleArchive: setArchiveTarget,
   });
@@ -56,7 +57,6 @@ export function CohortListPage() {
         data={cohorts ?? []}
         isLoading={isLoading}
         emptyMessage="No cohorts found."
-        onRowClick={(cohort) => navigate(`/cohorts/${cohort.id}`)}
       />
 
       <CohortFormDrawer open={formOpen} onOpenChange={setFormOpen} cohort={editingCohort} />

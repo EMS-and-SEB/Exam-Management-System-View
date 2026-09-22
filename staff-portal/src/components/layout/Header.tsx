@@ -1,25 +1,18 @@
 import { Link, useLocation, useMatches } from 'react-router-dom';
-import { LogOut, User as UserIcon } from 'lucide-react';
 import {
   Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList,
   BreadcrumbPage, BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
-  DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { navConfig, portalTitleByRole } from '@/config/nav-config';
 import { useAuthStore } from '@/store/auth.store';
-import { useLogout } from '@/modules/auth/hooks';
 
 interface RouteHandle { crumb?: string }
 
-export function Header() {
+export function Header({ onOpenProfile }: { onOpenProfile: () => void }) {
   const user = useAuthStore((s) => s.user);
-  const logout = useLogout();
   const location = useLocation();
   const matches = useMatches();
 
@@ -68,32 +61,17 @@ export function Header() {
 
       <div className="flex items-center gap-2">
         <ThemeToggle />
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <button type="button" aria-label="Open account menu" />
-            }
-          >
-            <Avatar className="h-8 w-8">
-              <AvatarFallback className="bg-primary text-primary-foreground">{initials}</AvatarFallback>
-            </Avatar>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel className="font-normal">
-              <div className="flex flex-col space-y-0.5">
-                <span className="text-sm font-medium">{user.name}</span>
-                <span className="text-xs text-muted-foreground">{user.email}</span>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem render={<Link to="/profile" />}>
-              <UserIcon className="mr-2 h-4 w-4" />Profile
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => logout.mutate()} className="text-destructive focus:text-destructive">
-              <LogOut className="mr-2 h-4 w-4" />Sign out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <button
+          type="button"
+          aria-label="Open profile"
+          title="Open profile"
+          onClick={onOpenProfile}
+          className="rounded-full outline-none ring-offset-background transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          <Avatar className="h-8 w-8">
+            <AvatarFallback className="bg-primary text-primary-foreground">{initials}</AvatarFallback>
+          </Avatar>
+        </button>
       </div>
     </header>
   );

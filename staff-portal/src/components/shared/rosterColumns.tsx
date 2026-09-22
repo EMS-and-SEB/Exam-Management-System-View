@@ -1,6 +1,6 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
-import { Trash2 } from 'lucide-react';
+import { UserMinus } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 
@@ -41,8 +41,14 @@ export function getRosterColumns(onRemove: (row: RosterRow) => void): ColumnDef<
       enableSorting: false,
       cell: ({ row }) => (
         <div className="text-right">
-          <Button variant="ghost" size="icon" onClick={() => onRemove(row.original)}>
-            <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Remove student from roster"
+            title="Remove student from roster"
+            onClick={() => onRemove(row.original)}
+          >
+            <UserMinus className="h-4 w-4 text-muted-foreground hover:text-destructive" />
           </Button>
         </div>
       ),

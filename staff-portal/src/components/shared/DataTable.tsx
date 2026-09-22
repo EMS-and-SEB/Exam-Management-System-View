@@ -129,7 +129,7 @@ export function DataTable<TData>({
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  className={onRowClick ? 'cursor-pointer hover:bg-muted/50' : undefined}
+                  className={onRowClick ? 'cursor-pointer hover:bg-muted/50' : 'hover:bg-muted/50'}
                   onClick={() => onRowClick?.(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
