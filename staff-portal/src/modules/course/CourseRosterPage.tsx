@@ -51,6 +51,7 @@ export function CourseRosterPage() {
         open={addOpen}
         onOpenChange={setAddOpen}
         entityLabel="Course"
+        enrolledStudentIds={rows.map((row) => row.id)}
         onAddOne={(data, opts) => enrollOne.mutate(data, opts)}
         onAddSelected={(ids, opts) => enrollSelected.mutate(ids, opts)}
         onAddBulk={(file) => enrollBulk.mutate(file)}

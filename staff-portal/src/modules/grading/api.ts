@@ -18,6 +18,7 @@ export interface AnswerDetail {
   type: string;
   prompt: string;
   points: number;
+  options?: unknown;
   responseData: unknown;
   correctAnswer?: unknown;
   isCorrect: boolean | null;

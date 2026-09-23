@@ -9,7 +9,7 @@ export function DashboardPage() {
 
   return (
     <div>
-      <PageHeader title={`Welcome back, ${user.name.split(' ')[0]}`} />
+      <PageHeader title={`Welcome back, ${user.name.trim().split(/\s+/).slice(0, 2).join(' ')}`} />
       {user.role === 'EXAM_ADMIN' ? <AdminDashboard /> : <StaffDashboard />}
     </div>
   );

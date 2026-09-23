@@ -19,6 +19,56 @@ interface GradeStudentDrawerProps {
   onNavigate: (sessionId: string) => void;
 }
 
+interface AnswerOption {
+  id: string;
+  text: string;
+}
+
+interface MatchingOptions {
+  left?: AnswerOption[];
+  right?: AnswerOption[];
+}
+
+function SubmittedAnswer({ answer }: { answer: AnswerDetail }) {
+  const options = answer.options as AnswerOption[] | MatchingOptions | undefined;
+
+  if (answer.type === 'MATCHING' && Array.isArray((options as MatchingOptions | undefined)?.left)) {
+    const matchingOptions = options as MatchingOptions;
+    const leftById = new Map((matchingOptions.left ?? []).map((option) => [option.id, option.text]));
+    const rightById = new Map((matchingOptions.right ?? []).map((option) => [option.id, option.text]));
+    const pairs = Array.isArray(answer.responseData) ? answer.responseData as { leftId: string; rightId: string }[] : [];
+
+    return (
+      <div className="space-y-1 text-sm">
+        {pairs.length > 0 ? pairs.map((pair, index) => (
+          <p key={`${pair.leftId}-${pair.rightId}-${index}`}>
+            <span className="font-medium">{leftById.get(pair.leftId) ?? pair.leftId}</span>
+            <span className="mx-2 text-muted-foreground">&rarr;</span>
+            <span>{rightById.get(pair.rightId) ?? pair.rightId}</span>
+          </p>
+        )) : <span className="text-muted-foreground">No answer submitted.</span>}
+      </div>
+    );
+  }
+
+  if ((answer.type === 'MULTIPLE_SELECT' || answer.type === 'MULTIPLE_CHOICE') && Array.isArray(options)) {
+    const optionById = new Map(options.map((option) => [option.id, option.text]));
+    const selectedIds = answer.type === 'MULTIPLE_SELECT'
+      ? Array.isArray(answer.responseData) ? answer.responseData as string[] : []
+      : typeof answer.responseData === 'string' ? [answer.responseData] : [];
+
+    return (
+      <div className="space-y-1 text-sm">
+        {selectedIds.length > 0 ? selectedIds.map((id) => (
+          <p key={id}>{optionById.get(id) ?? id}</p>
+        )) : <span className="text-muted-foreground">No answer submitted.</span>}
+      </div>
+    );
+  }
+
+  return <pre className="text-sm whitespace-pre-wrap font-mono">{JSON.stringify(answer.responseData, null, 2)}</pre>;
+}
+
 function AnswerCard({ answer, onGrade, isPending }: { answer: AnswerDetail; onGrade: (v: GradeAnswerValues) => void; isPending: boolean }) {
   const isGraded = answer.gradedAt !== null;
   const isManual = answer.type === 'WORKOUT';
@@ -39,7 +89,7 @@ function AnswerCard({ answer, onGrade, isPending }: { answer: AnswerDetail; onGr
 
         <div className="rounded-lg bg-muted/50 p-3">
           <p className="text-xs text-muted-foreground mb-1">Student's submitted answer</p>
-          <pre className="text-sm whitespace-pre-wrap font-mono">{JSON.stringify(answer.responseData, null, 2)}</pre>
+          <SubmittedAnswer answer={answer} />
         </div>
 
         {!isManual ? (

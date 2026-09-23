@@ -30,6 +30,7 @@ interface AddToRosterDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   entityLabel: string; // "Course" | "Cohort"
+  enrolledStudentIds: string[];
   onAddOne: (data: AddOneValues, opts: { onSuccess: () => void }) => void;
   onAddSelected: (studentIds: string[], opts: { onSuccess: () => void }) => void;
   onAddBulk: (file: File) => void;
@@ -41,6 +42,7 @@ interface AddToRosterDrawerProps {
 
 export function AddToRosterDrawer({
   open, onOpenChange, entityLabel,
+  enrolledStudentIds,
   onAddOne, onAddSelected, onAddBulk,
   isAddingOne, isAddingSelected, isAddingBulk, bulkResult,
 }: AddToRosterDrawerProps) {
@@ -50,6 +52,8 @@ export function AddToRosterDrawer({
 
   const debouncedQuery = useDebouncedValue(directoryQuery);
   const { data: directoryResults, isFetching } = useStudentDirectorySearch(debouncedQuery);
+  const enrolledStudentIdSet = new Set(enrolledStudentIds);
+  const availableDirectoryResults = directoryResults?.filter((student) => !enrolledStudentIdSet.has(student.id));
 
   const form = useForm<AddOneValues>({
     resolver: zodResolver(addOneSchema),
@@ -122,10 +126,10 @@ export function AddToRosterDrawer({
 
           <div className="max-h-72 overflow-y-auto rounded-lg border divide-y">
             {isFetching && <p className="p-4 text-sm text-muted-foreground text-center">Searching...</p>}
-            {!isFetching && directoryQuery && directoryResults?.length === 0 && (
+            {!isFetching && directoryQuery && availableDirectoryResults?.length === 0 && (
               <p className="p-4 text-sm text-muted-foreground text-center">No matches found.</p>
             )}
-            {directoryResults?.map((student) => (
+            {availableDirectoryResults?.map((student) => (
               <label key={student.id} className="flex items-center gap-3 p-3 cursor-pointer hover:bg-muted/50">
                 <Checkbox checked={selectedIds.has(student.id)} onCheckedChange={() => toggleSelected(student.id)} />
                 <div>

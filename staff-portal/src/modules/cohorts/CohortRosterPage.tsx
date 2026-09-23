@@ -54,6 +54,7 @@ export function CohortRosterPage() {
         open={addOpen}
         onOpenChange={setAddOpen}
         entityLabel="Cohort"
+        enrolledStudentIds={rows.map((row) => row.id)}
         onAddOne={(data, opts) => addOne.mutate(data, opts)}
         onAddSelected={(ids, opts) => addSelected.mutate(ids, opts)}
         onAddBulk={(file) => addBulk.mutate(file)}
