@@ -56,4 +56,5 @@ export interface StudentLoginResponse {
   exam: StudentExam;
   endsAt: string;
   examQuestions: StudentExamQuestion[];
+  student?: { name: string; studentId: string };
 }
