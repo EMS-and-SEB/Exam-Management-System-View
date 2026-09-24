@@ -1,6 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { LoginPage } from '@/modules/auth/LoginPage';
-import { ForgotPasswordPage } from '@/modules/auth/PasswordResetPage';
+import { ForgotPasswordPage, SetPasswordPage } from '@/modules/auth/PasswordResetPage';
 import { RequireAuth } from '@/components/guards/RequireAuth';
 import { RequireRole } from '@/components/guards/RequireRole';
 import { StaffLayout } from '@/components/layout/StaffLayout';
@@ -21,9 +21,7 @@ import { ExamGradingPage } from '@/modules/grading/ExamGradingPage';
 import { AuditLogPage } from '@/modules/audit/AuditLogPage';
 import { RetentionPolicyPage } from '@/modules/retention-policy/RetentionPolicyPage';
 import { DashboardPage } from '@/modules/dashboard/DashboardPage';
-import { InvigilatorLayout } from '@/components/layout/InvigilatorLayout';
-import { InvigilationOverviewPage } from '@/modules/invigilation/InvigilationOverviewPage';
-import { ExamMonitoringPage } from '@/modules/invigilation/ExamMonitoringPage';
+import { InvigilationRoute } from '@/modules/invigilation/InvigilationRoute';
 import { ResultsPage } from '@/modules/results/ResultsPage';
 import { CourseOrCohortResult } from '@/modules/results/CourseOrCohortResult';
 import { ExamResultsPage } from '@/modules/results/ExamResultsPage';
@@ -36,10 +34,13 @@ const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/dashboard" replace /> },
   { path: '/login', element: <LoginPage />, errorElement: <RouteErrorBoundary /> },
   { path: '/forgot-password', element: <ForgotPasswordPage /> },
+  { path: '/set-password', element: <SetPasswordPage /> },
   {
     element: <RequireAuth />,
     errorElement: <RouteErrorBoundary />,
     children: [
+      { path: '/invigilation', element: <InvigilationRoute /> },
+      { path: '/invigilation/:id', element: <InvigilationRoute /> },
       {
         element: <RequireRole roles={['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR', 'EXAM_ADMIN']} />,
         children: [
@@ -80,8 +81,6 @@ const router = createBrowserRouter([
                   { path: '/exams/:id', element: <ExamDetailPage /> },
                   { path: '/grading', element: <ExamsToGradePage /> },
                   { path: '/grading/:id', element: <ExamGradingPage /> },
-                  { path: '/invigilation', element: <InvigilationOverviewPage /> },
-                  { path: '/invigilation/:id', element: <ExamMonitoringPage /> },
                   { path: '/results', element: <ResultsPage /> },
                   { path: '/results/course/:courseId', element: <CourseOrCohortResult /> },
                   { path: '/results/cohort/:cohortId', element: <CourseOrCohortResult /> },
@@ -98,18 +97,6 @@ const router = createBrowserRouter([
               },
             ],
           },
-          {
-            element: <RequireRole roles={['INVIGILATOR']} />,
-            children: [
-              {
-                element: <InvigilatorLayout />,
-                children: [
-                  { path: '/invigilation', element: <InvigilationOverviewPage /> },
-                  { path: '/invigilation/:id', element: <ExamMonitoringPage /> },
-                ],
-              },
-            ],
-          }
         ],
       },
     ],

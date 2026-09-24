@@ -1,8 +1,6 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { MoreVertical, Pencil, Archive, ArchiveRestore } from 'lucide-react';
-import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { Pencil, Archive, ArchiveRestore } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import type { Course } from './api';
 import type { StaffRole } from '@/types/role';
@@ -45,25 +43,18 @@ export function getCourseColumns({ viewerRole, onView, onEdit, onToggleArchive }
       header: '',
       enableSorting: false,
       cell: ({ row }) => (
-        <div className="text-right">
-          <DropdownMenu>
-            <DropdownMenuTrigger render={<button type="button" aria-label="Row actions" />}>
-              <MoreVertical className="h-4 w-4 text-muted-foreground" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onEdit(row.original)}>
-                <Pencil className="mr-2 h-4 w-4" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onToggleArchive(row.original)}>
-                {row.original.status === 'ARCHIVED' ? (
-                  <><ArchiveRestore className="mr-2 h-4 w-4" />Unarchive</>
-                ) : (
-                  <><Archive className="mr-2 h-4 w-4" />Archive</>
-                )}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        <div className="flex justify-end gap-1.5">
+          <Button variant="ghost" size="sm" onClick={() => onEdit(row.original)}>
+            <Pencil />
+          </Button>
+          <Button
+            variant={row.original.status === 'ARCHIVED' ? 'outline' : 'destructive'}
+            size="sm"
+            onClick={() => onToggleArchive(row.original)}
+          >
+            {row.original.status === 'ARCHIVED' ? <ArchiveRestore /> : <Archive />}
+            {row.original.status === 'ARCHIVED' ? 'Unarchive' : 'Archive'}
+          </Button>
         </div>
       ),
     });

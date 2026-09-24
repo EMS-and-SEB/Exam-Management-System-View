@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircle, Loader2 } from 'lucide-react';
@@ -25,6 +25,8 @@ import {
   useRequestPasswordReset,
   useVerifyPasswordReset,
   useConfirmPasswordReset,
+  useCompleteStaffInvitation,
+  useStaffInvitation,
 } from './hooks';
 
 type Step = 'request' | 'sent' | 'verify' | 'reset' | 'done';
@@ -293,6 +295,81 @@ export function ForgotPasswordPage() {
                 Back to Sign In
               </Button>
             </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+export function SetPasswordPage() {
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token') ?? '';
+  const navigate = useNavigate();
+  const invitation = useStaffInvitation(token);
+  const completeInvitation = useCompleteStaffInvitation();
+  const resetForm = useForm<NewPasswordValues>({ resolver: zodResolver(newPasswordSchema) });
+
+  const onSubmit = (values: NewPasswordValues) => {
+    completeInvitation.mutate(
+      { token, newPassword: values.newPassword },
+      { onSuccess: () => navigate('/login', { state: { invitationCompleted: true } }) },
+    );
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
+      <Card className="w-full max-w-md">
+        <CardContent className="pt-8 pb-6 px-6 space-y-5">
+          {invitation.isLoading && (
+            <div className="py-8 text-center space-y-3">
+              <Loader2 className="mx-auto h-6 w-6 animate-spin text-primary" />
+              <p className="text-sm text-muted-foreground">Validating your invitation...</p>
+            </div>
+          )}
+
+          {(invitation.isError || !token) && !invitation.isLoading && (
+            <div className="text-center space-y-3">
+              <h1 className="text-lg font-semibold">Invitation unavailable</h1>
+              <p className="text-sm text-muted-foreground">
+                This invitation is invalid, expired, or has already been used. Ask an Exam Administrator to send a new invitation.
+              </p>
+              <Button className="w-full" onClick={() => navigate('/login')}>Back to Sign In</Button>
+            </div>
+          )}
+
+          {invitation.data && (
+            <form onSubmit={resetForm.handleSubmit(onSubmit)} className="space-y-4">
+              <div>
+                <h1 className="text-lg font-semibold">Set your password</h1>
+                <p className="text-sm text-muted-foreground">
+                  Welcome, {invitation.data.name}. Create a password for {invitation.data.email}.
+                </p>
+              </div>
+
+              <Field data-invalid={!!resetForm.formState.errors.newPassword}>
+                <FieldLabel>New password</FieldLabel>
+                <Input type="password" autoComplete="new-password" {...resetForm.register('newPassword')} />
+                {resetForm.formState.errors.newPassword && <FieldError errors={[resetForm.formState.errors.newPassword]} />}
+              </Field>
+
+              <Field data-invalid={!!resetForm.formState.errors.confirmPassword}>
+                <FieldLabel>Confirm password</FieldLabel>
+                <Input type="password" autoComplete="new-password" {...resetForm.register('confirmPassword')} />
+                {resetForm.formState.errors.confirmPassword && <FieldError errors={[resetForm.formState.errors.confirmPassword]} />}
+              </Field>
+
+              {completeInvitation.isError && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{completeInvitation.error.message}</AlertDescription>
+                </Alert>
+              )}
+
+              <Button type="submit" className="w-full" disabled={completeInvitation.isPending}>
+                {completeInvitation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Set Password'}
+              </Button>
+            </form>
           )}
         </CardContent>
       </Card>

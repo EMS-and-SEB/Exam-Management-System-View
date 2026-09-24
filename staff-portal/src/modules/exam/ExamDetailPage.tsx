@@ -34,7 +34,7 @@ export function ExamDetailPage() {
   const [releaseOpen, setReleaseOpen] = useState(false);
   const [invigilatorQuery, setInvigilatorQuery] = useState('');
   const debouncedQuery = useDebouncedValue(invigilatorQuery);
-  const { data: invigilatorResults, isFetching } = useStaffSearch(debouncedQuery);
+  const { data: invigilatorResults, isFetching } = useStaffSearch(debouncedQuery, 'INVIGILATOR');
 
   if (isLoading || !exam) return <LoadingState label="Loading exam..." />;
 

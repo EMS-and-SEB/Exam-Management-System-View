@@ -8,6 +8,14 @@ export interface StaffMember {
   role: StaffRole;
   isActive: boolean;
   createdAt: string;
+  courses?: AssignedResource[];
+  coordinatedCohorts?: AssignedResource[];
+}
+
+export interface AssignedResource {
+  id: string;
+  name: string;
+  status: string;
 }
 
 interface StaffListResponse {
@@ -19,7 +27,7 @@ interface StaffListResponse {
 }
 
 export const staffApi = {
-  list: (params: { page: number; limit: number; search?: string }) =>
+  list: (params: { page: number; limit: number; search?: string; role?: StaffRole }) =>
     http.get<StaffListResponse>('/staff', { params }).then((r) => r.data),
 
   getOne: (id: string) => http.get<StaffMember>(`/staff/${id}`).then((r) => r.data),
@@ -29,6 +37,10 @@ export const staffApi = {
 
   update: (id: string, data: { name?: string; email?: string; isActive?: boolean }) =>
     http.patch<StaffMember>(`/staff/${id}`, data).then((r) => r.data),
+  unassignCourse: (staffId: string, courseId: string) =>
+    http.delete(`/staff/${staffId}/courses/${courseId}`).then((r) => r.data),
+  unassignCohort: (staffId: string, cohortId: string) =>
+    http.delete(`/staff/${staffId}/cohorts/${cohortId}`).then((r) => r.data),
 
   getProfile: () => http.get<StaffMember>('/staff/me').then((r) => r.data),
   updateProfile: (data: { name?: string; email?: string }) =>

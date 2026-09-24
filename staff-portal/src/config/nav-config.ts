@@ -19,7 +19,7 @@ export const navConfig: NavItem[] = [
   { label: 'Students', path: '/students', icon: UserCog, color: 'text-cyan-500', roles: ['EXAM_ADMIN'] },
   { label: 'Exams & Assessments', path: '/exams', icon: ClipboardList, color: 'text-blue-500', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR'] },
   { label: 'Question Bank', path: '/questions', icon: BookOpen, color: 'text-amber-500', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR'] },
-  { label: 'Invigilation', path: '/invigilation', icon: Eye, color: 'text-violet-500', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR'] },
+  { label: 'Invigilation', path: '/invigilation', icon: Eye, color: 'text-violet-500', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR', 'INVIGILATOR'] },
   { label: 'Grading', path: '/grading', icon: ClipboardCheck, color: 'text-teal-500', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR'] },
   { label: 'Results', path: '/results', icon: BarChart3, color: 'text-rose-500', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR'] },
   { label: 'Staff', path: '/staff', icon: UserCog, color: 'text-indigo-500', roles: ['EXAM_ADMIN'] },
@@ -28,8 +28,8 @@ export const navConfig: NavItem[] = [
 ];
 
 export const portalTitleByRole: Record<StaffRole, string> = {
-  EXAM_ADMIN: 'Admin Portal',
   INSTRUCTOR: 'Instructor Portal',
-  EXIT_EXAM_COORDINATOR: 'Coordinator Portal',
-  INVIGILATOR: 'Invigilator Portal',
+  EXIT_EXAM_COORDINATOR: 'Exam Coordination Portal',
+  INVIGILATOR: 'Invigilation Portal',
+  EXAM_ADMIN: 'Exam Administration Portal',
 };

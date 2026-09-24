@@ -34,7 +34,7 @@ function CohortFormDrawerInner({ open, onOpenChange, cohort }: CohortFormDrawerP
   const createCohort = useCreateCohort();
   const updateCohort = useUpdateCohort();
 
-  const [coordinatorQuery, setCoordinatorQuery] = useState('');
+  const [coordinatorQuery, setCoordinatorQuery] = useState(cohort?.coordinator?.name ?? '');
   const debouncedQuery = useDebouncedValue(coordinatorQuery);
   const { data: coordinatorResults, isFetching } = useStaffSearch(debouncedQuery, 'EXIT_EXAM_COORDINATOR');
 
@@ -52,7 +52,7 @@ function CohortFormDrawerInner({ open, onOpenChange, cohort }: CohortFormDrawerP
         name: cohort?.name ?? '',
         coordinatorId: cohort?.coordinatorId ?? '',
       });
-      setCoordinatorQuery('');
+      setCoordinatorQuery(cohort?.coordinator?.name ?? '');
     }
     onOpenChange(next);
   };

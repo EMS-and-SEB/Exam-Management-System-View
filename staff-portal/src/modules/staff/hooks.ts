@@ -16,7 +16,7 @@ export function useStaff(params: { page: number; limit: number; search?: string 
 export function useStaffSearch(search: string, role?: string) {
   return useQuery({
     queryKey: ['staff-search', search, role],
-    queryFn: () => staffApi.list({ page: 1, limit: 20, search: search || undefined }),
+    queryFn: () => staffApi.list({ page: 1, limit: 20, search: search || undefined, role: role as 'INVIGILATOR' | undefined }),
     enabled: search.length > 0,
     select: (data) => (role ? data.staff.filter((s) => s.role === role) : data.staff),
   });
@@ -28,7 +28,7 @@ export function useCreateStaff() {
     mutationFn: staffApi.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: STAFF_KEY });
-      toast.success('Staff account created.');
+      toast.success('Staff account created. An activation email was sent.');
     },
   });
 }
@@ -36,14 +36,15 @@ export function useCreateStaff() {
 export function useUpdateStaff() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: { name?: string; email?: string; isActive?: boolean } }) =>
+    mutationFn: ({ id, data }: { id: string; data: { name?: string; email?: string; isActive?: boolean }; currentIsActive: boolean }) =>
       staffApi.update(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: STAFF_KEY });
+      const statusChanged = variables.data.isActive !== undefined && variables.data.isActive !== variables.currentIsActive;
       toast.success(
-        variables.data.isActive === false
+        statusChanged && variables.data.isActive === false
           ? 'Staff account deactivated.'
-          : variables.data.isActive === true
+          : statusChanged && variables.data.isActive === true
             ? 'Staff account reactivated.'
             : 'Staff account updated.',
       );
@@ -59,6 +60,29 @@ export function useUpdateProfile() {
     onSuccess: (staff) => {
       updateUser(staff);
       toast.success('Profile updated.');
+    },
+  });
+}
+
+export function useStaffDetails(id: string) {
+  return useQuery({
+    queryKey: [...STAFF_KEY, id],
+    queryFn: () => staffApi.getOne(id),
+    enabled: !!id,
+  });
+}
+
+export function useUnassignStaffResource() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ staffId, resourceId, resourceType }: { staffId: string; resourceId: string; resourceType: 'course' | 'cohort' }) =>
+      resourceType === 'course'
+        ? staffApi.unassignCourse(staffId, resourceId)
+        : staffApi.unassignCohort(staffId, resourceId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: [...STAFF_KEY, variables.staffId] });
+      queryClient.invalidateQueries({ queryKey: STAFF_KEY });
+      toast.success(`${variables.resourceType === 'course' ? 'Course' : 'Cohort'} assignment removed.`);
     },
   });
 }

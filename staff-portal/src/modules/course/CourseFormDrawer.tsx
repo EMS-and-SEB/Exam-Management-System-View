@@ -34,7 +34,7 @@ function CourseFormDrawerInner({ open, onOpenChange, course }: CourseFormDrawerP
   const createCourse = useCreateCourse();
   const updateCourse = useUpdateCourse();
 
-  const [instructorQuery, setInstructorQuery] = useState('');
+  const [instructorQuery, setInstructorQuery] = useState(course?.instructor?.name ?? '');
   const debouncedQuery = useDebouncedValue(instructorQuery);
   const { data: instructorResults, isFetching } = useStaffSearch(debouncedQuery, 'INSTRUCTOR');
 
@@ -52,7 +52,7 @@ function CourseFormDrawerInner({ open, onOpenChange, course }: CourseFormDrawerP
         name: course?.name ?? '',
         instructorId: course?.instructorId ?? '',
       });
-      setInstructorQuery('');
+      setInstructorQuery(course?.instructor?.name ?? '');
     }
     onOpenChange(next);
   };

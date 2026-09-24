@@ -5,8 +5,7 @@ import {
   SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarRail,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { navConfig, portalTitleByRole } from '@/config/nav-config';
+import { navConfig } from '@/config/nav-config';
 import { useAuthStore } from '@/store/auth.store';
 import { useLogout } from '@/modules/auth/hooks';
 import { cn } from '@/lib/utils';
@@ -21,8 +20,7 @@ export function AppSidebar() {
 
   const items = navConfig.filter((item) => item.roles.includes(user.role));
   const isCollapsed = state === 'collapsed';
-  const initials = user.name.split(' ').map((n) => n[0]).join('').slice(0, 2);
-
+  
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className=" h-12 border-b">
@@ -79,7 +77,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t">
-        <div className="flex items-center gap-2 px-2 py-2 group-data-[collapsible=icon]:justify-center">
+        {/* <div className="flex items-center gap-2 px-2 py-2 group-data-[collapsible=icon]:justify-center">
           <Avatar className="h-8 w-8">
             <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
@@ -89,7 +87,7 @@ export function AppSidebar() {
               {portalTitleByRole[user.role].replace(' Portal', '')}
             </span>
           </div>
-        </div>
+        </div> */}
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton

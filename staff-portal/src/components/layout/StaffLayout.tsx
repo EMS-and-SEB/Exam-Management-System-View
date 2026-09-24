@@ -5,7 +5,7 @@ import { Header } from './Header';
 import { ProfileDrawer } from '@/modules/staff/ProfileDrawer';
 import { useState } from 'react';
 
-export function StaffLayout() {
+export function StaffLayout({ children }: { children?: React.ReactNode }) {
   const [profileOpen, setProfileOpen] = useState(false);
 
   return (
@@ -14,7 +14,7 @@ export function StaffLayout() {
       <SidebarInset>
         <Header onOpenProfile={() => setProfileOpen(true)} />
         <main className="flex-1 overflow-y-auto p-6">
-          <Outlet />
+          {children ?? <Outlet />}
         </main>
       </SidebarInset>
       {profileOpen && <ProfileDrawer open onOpenChange={setProfileOpen} />}

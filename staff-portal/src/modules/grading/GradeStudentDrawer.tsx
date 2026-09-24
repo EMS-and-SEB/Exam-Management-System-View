@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ChevronLeft, ChevronRight, CheckCircle2, User, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, User, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Field, FieldLabel, FieldError } from '@/components/ui/field';
@@ -31,17 +31,28 @@ interface MatchingOptions {
 
 function SubmittedAnswer({ answer }: { answer: AnswerDetail }) {
   const options = answer.options as AnswerOption[] | MatchingOptions | undefined;
+  const answerColor = answer.type === 'WORKOUT'
+    ? ''
+    : answer.isCorrect ? 'text-blue-600' : 'text-red-500';
 
   if (answer.type === 'MATCHING' && Array.isArray((options as MatchingOptions | undefined)?.left)) {
     const matchingOptions = options as MatchingOptions;
     const leftById = new Map((matchingOptions.left ?? []).map((option) => [option.id, option.text]));
     const rightById = new Map((matchingOptions.right ?? []).map((option) => [option.id, option.text]));
     const pairs = Array.isArray(answer.responseData) ? answer.responseData as { leftId: string; rightId: string }[] : [];
+    const correctPairs = new Set(
+      Array.isArray(answer.correctAnswer)
+        ? (answer.correctAnswer as { leftId: string; rightId: string }[]).map((pair) => `${pair.leftId}:${pair.rightId}`)
+        : [],
+    );
 
     return (
       <div className="space-y-1 text-sm">
         {pairs.length > 0 ? pairs.map((pair, index) => (
-          <p key={`${pair.leftId}-${pair.rightId}-${index}`}>
+          <p
+            key={`${pair.leftId}-${pair.rightId}-${index}`}
+            className={correctPairs.has(`${pair.leftId}:${pair.rightId}`) ? 'text-blue-600' : 'text-red-400'}
+          >
             <span className="font-medium">{leftById.get(pair.leftId) ?? pair.leftId}</span>
             <span className="mx-2 text-muted-foreground">&rarr;</span>
             <span>{rightById.get(pair.rightId) ?? pair.rightId}</span>
@@ -56,22 +67,37 @@ function SubmittedAnswer({ answer }: { answer: AnswerDetail }) {
     const selectedIds = answer.type === 'MULTIPLE_SELECT'
       ? Array.isArray(answer.responseData) ? answer.responseData as string[] : []
       : typeof answer.responseData === 'string' ? [answer.responseData] : [];
+    const correctIds = new Set(
+      Array.isArray(answer.correctAnswer)
+        ? answer.correctAnswer as string[]
+        : typeof answer.correctAnswer === 'string'
+          ? [answer.correctAnswer]
+          : [],
+    );
 
     return (
       <div className="space-y-1 text-sm">
         {selectedIds.length > 0 ? selectedIds.map((id) => (
-          <p key={id}>{optionById.get(id) ?? id}</p>
+          <p key={id} className={correctIds.has(id) ? 'text-blue-600' : 'text-red-400'}>
+            {optionById.get(id) ?? id}
+          </p>
         )) : <span className="text-muted-foreground">No answer submitted.</span>}
       </div>
     );
   }
 
-  return <pre className="text-sm whitespace-pre-wrap font-mono">{JSON.stringify(answer.responseData, null, 2)}</pre>;
+  return <pre className={`text-sm whitespace-pre-wrap font-mono ${answerColor}`}>{JSON.stringify(answer.responseData, null, 2)}</pre>;
 }
 
 function AnswerCard({ answer, onGrade, isPending }: { answer: AnswerDetail; onGrade: (v: GradeAnswerValues) => void; isPending: boolean }) {
   const isGraded = answer.gradedAt !== null;
   const isManual = answer.type === 'WORKOUT';
+  const awardedPoints = answer.pointsAwarded ?? 0;
+  const scoreColor = answer.isCorrect
+    ? 'text-green-700'
+    : awardedPoints > 0
+      ? 'text-yellow-500'
+      : 'text-red-500';
 
   const form = useForm<GradeAnswerValues>({
     resolver: zodResolver(gradeAnswerSchema),
@@ -83,7 +109,9 @@ function AnswerCard({ answer, onGrade, isPending }: { answer: AnswerDetail; onGr
       <CardContent className="p-4 space-y-3">
         <div className="flex items-center justify-between">
           <StatusBadge status={answer.type} />
-          <span className="text-xs text-muted-foreground">{answer.points} pts</span>
+          <span className={`text-xs ${!isManual ? scoreColor : 'text-muted-foreground'}`}>
+            {!isManual ? `${awardedPoints} / ${answer.points}` : `${answer.points} pts`}
+          </span>
         </div>
         <p className="text-sm">{answer.prompt}</p>
 
@@ -93,13 +121,8 @@ function AnswerCard({ answer, onGrade, isPending }: { answer: AnswerDetail; onGr
         </div>
 
         {!isManual ? (
-          <div className="flex items-center gap-2 text-sm">
-            {answer.isCorrect ? (
-              <span className="flex items-center gap-1 text-emerald-600"><CheckCircle2 className="h-4 w-4" /> Correct — Awarded {answer.pointsAwarded}/{answer.points} pts</span>
-            ) : (
-              <span className="text-red-600">Incorrect — Awarded {answer.pointsAwarded}/{answer.points} pts</span>
-            )}
-            <span className="text-xs text-muted-foreground ml-auto">Auto-graded — locked</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground ml-auto">Auto-graded</span>
           </div>
         ) : (
           <form onSubmit={form.handleSubmit(onGrade)} className="flex items-end gap-2">
@@ -125,10 +148,11 @@ export function GradeStudentDrawer({ examId, sessionId, sessionIds, onOpenChange
   if (!sessionId) return null;
 
   const currentIndex = sessionIds.indexOf(sessionId);
-  const graded = data?.answers.filter((a) => a.gradedAt !== null).length ?? 0;
-  const total = data?.answers.length ?? 0;
+  const answers = data?.answers ?? [];
+  const manualAnswers = answers.filter((answer) => answer.type === 'WORKOUT');
+  const graded = manualAnswers.filter((answer) => answer.gradedAt !== null).length;
+  const total = answers.length;
   const tentativeScore = data?.answers.reduce((sum, a) => sum + (a.pointsAwarded ?? 0), 0) ?? 0;
-  const maxScore = data?.answers.reduce((sum, a) => sum + a.points, 0) ?? 0;
 
   return (
     <DrawerShell
@@ -137,9 +161,9 @@ export function GradeStudentDrawer({ examId, sessionId, sessionIds, onOpenChange
       icon={<User className="h-4 w-4" />}
       title={data?.session.student.name ?? 'Loading...'}
       subtitle={data?.session.student.studentId}
-      badge={total > 0 ? <StatusBadge status={graded === total ? 'GRADED' : 'NEEDS_GRADING'} /> : undefined}
+      badge={total > 0 ? <StatusBadge status={graded === manualAnswers.length ? 'GRADED' : 'NEEDS_GRADING'} /> : undefined}
       width="xl"
-      footerLeft={total > 0 ? `Tentative Score: ${tentativeScore}/${maxScore} · ${graded}/${total} graded` : undefined}
+      footerLeft={total > 0 ? `Score: ${tentativeScore.toFixed(2)}` : undefined}
       footer={
         <>
           <Button
@@ -160,6 +184,10 @@ export function GradeStudentDrawer({ examId, sessionId, sessionIds, onOpenChange
     >
       {isLoading ? (
         <p className="text-sm text-muted-foreground text-center py-8">Loading answers...</p>
+      ) : answers.length === 0 ? (
+        <p className="text-sm text-muted-foreground text-center py-12">
+          No answers were submitted for this student.
+        </p>
       ) : (
         <div className="space-y-4">
           {data?.answers.map((answer) => (

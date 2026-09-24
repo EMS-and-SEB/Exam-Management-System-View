@@ -59,7 +59,6 @@ export function ExamGradingPage() {
       <PageHeader
         title={exam?.title ?? 'Grading'}
         backTo="/grading"
-        subtitle={exam ? `${exam.course?.name ?? exam.cohort?.name}` : undefined}
       />
 
       <div className="grid grid-cols-3 gap-4 mb-6 max-w-lg">

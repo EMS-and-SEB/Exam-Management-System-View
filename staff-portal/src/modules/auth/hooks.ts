@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { authApi } from './api';
 import { useAuthStore } from '../../store/auth.store';
@@ -13,7 +13,7 @@ export function useLogin() {
       authApi.login(email, password),
     onSuccess: (data) => {
       setSession(data.jwt, data.staff);
-      navigate('/dashboard');
+      navigate(data.staff.role === 'INVIGILATOR' ? '/invigilation' : '/dashboard');
     },
   });
 }
@@ -46,5 +46,21 @@ export function useConfirmPasswordReset() {
   return useMutation({
     mutationFn: ({ resetToken, newPassword }: { resetToken: string; newPassword: string }) =>
       authApi.confirmPasswordReset(resetToken, newPassword),
+  });
+}
+
+export function useStaffInvitation(token: string) {
+  return useQuery({
+    queryKey: ['staff-invitation', token],
+    queryFn: () => authApi.verifyStaffInvitation(token),
+    enabled: token.length > 0,
+    retry: false,
+  });
+}
+
+export function useCompleteStaffInvitation() {
+  return useMutation({
+    mutationFn: ({ token, newPassword }: { token: string; newPassword: string }) =>
+      authApi.completeStaffInvitation(token, newPassword),
   });
 }
