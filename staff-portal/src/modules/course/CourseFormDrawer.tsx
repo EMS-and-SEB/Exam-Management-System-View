@@ -45,7 +45,7 @@ function CourseFormDrawerInner({
 
   const { data: staffData, isLoading: staffLoading } = useStaff({
     page: 1,
-    limit: 200,
+    limit: 100,
   });
   const instructors = (staffData?.staff ?? []).filter(
     (s) => s.role === "INSTRUCTOR",

@@ -332,7 +332,7 @@ export function QuestionTypeFields({
           .
         </p>
         {answers.map((answer, i) => (
-          <div key={`${i}-${answer}`} className="flex items-center gap-2 mb-2">
+          <div key={i} className="flex items-center gap-2 mb-2">
             <span className="text-xs text-muted-foreground w-8">#{i + 1}</span>
             <Input
               placeholder={`Answer for blank ${i + 1}`}
