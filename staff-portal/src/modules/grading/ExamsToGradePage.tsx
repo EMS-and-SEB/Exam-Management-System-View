@@ -25,18 +25,18 @@ export function ExamsToGradePage() {
       {gradable.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-16">No exams to grade yet.</p>
       ) : (
-        <div className="space-y-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {gradable.map((exam) => (
-            <Card key={exam.id} className="cursor-pointer hover:border-primary/50" onClick={() => navigate(`/grading/${exam.id}`)}>
-              <CardContent className="p-4 flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
+            <Card key={exam.id} className="cursor-pointer transition-colors hover:border-primary/50" onClick={() => navigate(`/grading/${exam.id}`)}>
+              <CardContent className="flex min-h-44 flex-col p-5">
+                <div className="flex flex-1 flex-col">
+                  <div className="mb-3 flex items-center gap-2">
                     <StatusBadge status={exam.status} />
                   </div>
-                  <p className="font-medium">{exam.title}</p>
-                  <p className="text-xs text-muted-foreground">{exam.course?.name ?? exam.cohort?.name}</p>
+                  <p className="font-medium leading-snug">{exam.title}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{exam.course?.name ?? exam.cohort?.name}</p>
                 </div>
-                <Button variant="outline" size="sm">Open Grading</Button>
+                <Button variant="outline" size="sm" className="mt-5 w-full">Open Grading</Button>
               </CardContent>
             </Card>
           ))}

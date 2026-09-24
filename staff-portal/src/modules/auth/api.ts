@@ -11,4 +11,8 @@ export const authApi = {
     http.post('/auth/staff/password-reset/verify', { email, code }).then((r) => r.data),
   confirmPasswordReset: (resetToken: string, newPassword: string) =>
     http.post('/auth/staff/password-reset/confirm', { resetToken, newPassword }),
+  verifyStaffInvitation: (token: string) =>
+    http.post<{ name: string; email: string }>('/auth/staff/invitation/verify', { token }).then((r) => r.data),
+  completeStaffInvitation: (token: string, newPassword: string) =>
+    http.post('/auth/staff/invitation/complete', { token, newPassword }),
 };

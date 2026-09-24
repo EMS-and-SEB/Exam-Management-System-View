@@ -72,7 +72,7 @@ export function CohortRosterPage() {
         confirmLabel="Remove from cohort"
         variant="destructive"
         isLoading={removeMember.isPending}
-        onConfirm={() => removeTarget && removeMember.mutate(removeTarget.studentId, { onSuccess: () => setRemoveTarget(null) })}
+        onConfirm={() => removeTarget && removeMember.mutate(removeTarget.id, { onSuccess: () => setRemoveTarget(null) })}
       />
     </div>
   );

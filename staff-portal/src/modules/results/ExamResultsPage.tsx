@@ -28,23 +28,14 @@ export function ExamResultsPage() {
         </div>
       ),
     },
+    
     {
-      id: 'auto',
-      header: 'Auto',
-      cell: ({ row }) => row.original.status === 'NOT_STARTED' ? '-' : row.original.autoScore,
-    },
-    {
-      id: 'manual',
-      header: 'Manual',
-      cell: ({ row }) => row.original.status === 'NOT_STARTED' ? '-' : row.original.manualScore,
-    },
-    {
-      id: 'total',
-      header: 'Total',
+      id: 'Score',
+      header: `Score/${results?.[0]?.maxScore ?? ''}`,
       cell: ({ row }) => row.original.status === 'NOT_STARTED' ? (
         <span className="font-medium">-</span>
       ) : (
-        <span className="font-medium">{row.original.totalScore} / {row.original.maxScore}</span>
+        <span className="font-medium">{row.original.totalScore}</span>
       ),
     },
   ];

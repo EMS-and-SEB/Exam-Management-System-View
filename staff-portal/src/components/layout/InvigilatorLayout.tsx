@@ -5,7 +5,7 @@ import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { useAuthStore } from '@/store/auth.store';
 import { useLogout } from '@/modules/auth/hooks';
 
-export function InvigilatorLayout() {
+export function InvigilatorLayout({ children }: { children?: React.ReactNode }) {
   const user = useAuthStore((s) => s.user);
   const logout = useLogout();
 
@@ -44,7 +44,7 @@ export function InvigilatorLayout() {
       </header>
 
       <main className="flex-1 overflow-y-auto p-6">
-        <Outlet />
+        {children ?? <Outlet />}
       </main>
 
       <footer className="border-t px-6 py-3 text-xs text-muted-foreground text-center shrink-0">

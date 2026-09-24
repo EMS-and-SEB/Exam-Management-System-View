@@ -58,7 +58,7 @@ export function CombinedResultsTable({ parent, examColumns }: CombinedResultsTab
                     const score = row.scores[c.id];
                     return (
                       <td key={c.id} className="text-center p-2.5">
-                        {score ? `${score.score}/${score.maxScore}` : <span className="text-muted-foreground">-</span>}
+                        {score ? `${score.score}` : <span className="text-muted-foreground">-</span>}
                       </td>
                     );
                   })}
