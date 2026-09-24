@@ -1,36 +1,48 @@
-import { useState, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
-import { Plus, Search } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
-import { PageHeader } from '@/components/shared/PageHeader';
-import { LoadingState } from '@/components/shared/LoadingState';
-import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
-import { useQuestions, useDeleteQuestion } from './hooks';
-import { QuestionCard } from './QuestionCard';
-import { QuestionFormDrawer } from './QuestionFormDrawer';
-import { questionTypeOptions } from './validation/question.schema';
-import type { Question } from './api';
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { LoadingState } from "@/components/shared/LoadingState";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Plus, Search } from "lucide-react";
+import { useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
+import type { Question } from "./api";
+import { useDeleteQuestion, useQuestions } from "./hooks";
+import { QuestionCard } from "./QuestionCard";
+import { QuestionFormDrawer } from "./QuestionFormDrawer";
+import { questionTypeOptions } from "./validation/question.schema";
 
 export function QuestionBankPage() {
-  const { courseId, cohortId } = useParams<{ courseId?: string; cohortId?: string }>();
+  const { courseId, cohortId } = useParams<{
+    courseId?: string;
+    cohortId?: string;
+  }>();
   const parent = courseId ? { courseId } : { cohortId };
 
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Question | null>(null);
-
+  const [typeFilter, setTypeFilter] = useState<string>("");
   const { data: questions, isLoading } = useQuestions(parent);
   const deleteQuestion = useDeleteQuestion(parent);
 
-  const filtered = (questions ?? []).filter((q) => q.prompt.toLowerCase().includes(search.toLowerCase()));
+  const filtered = (questions ?? []).filter((q) => {
+    const matchesSearch = q.prompt.toLowerCase().includes(search.toLowerCase());
+    const matchesType = !typeFilter || q.type === typeFilter;
+    return matchesSearch && matchesType;
+  });
 
   const distribution = useMemo(() => {
     const counts: Record<string, number> = {};
-    (questions ?? []).forEach((q) => { counts[q.type] = (counts[q.type] ?? 0) + 1; });
-    return questionTypeOptions.map((t) => ({ ...t, count: counts[t.value] ?? 0 }));
+    (questions ?? []).forEach((q) => {
+      counts[q.type] = (counts[q.type] ?? 0) + 1;
+    });
+    return questionTypeOptions.map((t) => ({
+      ...t,
+      count: counts[t.value] ?? 0,
+    }));
   }, [questions]);
 
   const total = questions?.length ?? 0;
@@ -41,7 +53,12 @@ export function QuestionBankPage() {
         title="Question Bank"
         badge={`${total} Total`}
         actions={
-          <Button onClick={() => { setEditingQuestion(null); setFormOpen(true); }}>
+          <Button
+            onClick={() => {
+              setEditingQuestion(null);
+              setFormOpen(true);
+            }}
+          >
             <Plus className="h-4 w-4" />
             Add Question
           </Button>
@@ -50,22 +67,46 @@ export function QuestionBankPage() {
 
       <div className="grid grid-cols-[1fr_260px] gap-6">
         <div>
-          <div className="relative mb-4 max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search by prompt keywords..." className="pl-9" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <div className="flex items-center gap-3 mb-4">
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by prompt keywords..."
+                className="pl-9"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="h-8 rounded-md border px-2 text-sm bg-background"
+            >
+              <option value="">All types</option>
+              {questionTypeOptions.map((t) => (
+                <option key={t.value} value={t.value}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
           </div>
 
           {isLoading ? (
             <LoadingState label="Loading questions..." />
           ) : filtered.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-16">No questions found.</p>
+            <p className="text-sm text-muted-foreground text-center py-16">
+              No questions found.
+            </p>
           ) : (
             <div className="space-y-3">
               {filtered.map((q) => (
                 <QuestionCard
                   key={q.id}
                   question={q}
-                  onEdit={() => { setEditingQuestion(q); setFormOpen(true); }}
+                  onEdit={() => {
+                    setEditingQuestion(q);
+                    setFormOpen(true);
+                  }}
                   onDelete={() => setDeleteTarget(q)}
                 />
               ))}
@@ -85,7 +126,9 @@ export function QuestionBankPage() {
                 <div className="h-1.5 rounded-full bg-muted overflow-hidden">
                   <div
                     className="h-full bg-primary"
-                    style={{ width: total > 0 ? `${(t.count / total) * 100}%` : '0%' }}
+                    style={{
+                      width: total > 0 ? `${(t.count / total) * 100}%` : "0%",
+                    }}
                   />
                 </div>
               </div>
@@ -94,7 +137,12 @@ export function QuestionBankPage() {
         </Card>
       </div>
 
-      <QuestionFormDrawer open={formOpen} onOpenChange={setFormOpen} parent={parent} question={editingQuestion} />
+      <QuestionFormDrawer
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        parent={parent}
+        question={editingQuestion}
+      />
 
       <ConfirmDialog
         open={!!deleteTarget}
@@ -104,7 +152,12 @@ export function QuestionBankPage() {
         confirmLabel="Delete"
         variant="destructive"
         isLoading={deleteQuestion.isPending}
-        onConfirm={() => deleteTarget && deleteQuestion.mutate(deleteTarget.id, { onSuccess: () => setDeleteTarget(null) })}
+        onConfirm={() =>
+          deleteTarget &&
+          deleteQuestion.mutate(deleteTarget.id, {
+            onSuccess: () => setDeleteTarget(null),
+          })
+        }
       />
     </div>
   );
