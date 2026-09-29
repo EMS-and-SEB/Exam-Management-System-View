@@ -15,7 +15,7 @@ interface StudentListResponse {
   totalPages: number;
 }
 
-interface BulkImportResult {
+interface ImportResult {
   created: number;
   updated: number;
   errors: { row: number; reason: string }[];
@@ -33,11 +33,11 @@ export const studentsApi = {
   update: (id: string, data: { studentId?: string; name?: string }) =>
     http.patch<Student>(`/students/${id}`, data).then((r) => r.data),
 
-  bulkImport: (file: File) => {
+  import: (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
     return http
-      .post<BulkImportResult>('/students/bulk', formData, {
+      .post<ImportResult>('/students/import', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
       .then((r) => r.data);

@@ -17,7 +17,7 @@ interface CohortMember {
   student: { studentId: string; name: string };
 }
 
-interface BulkAddResult {
+interface ImportResult {
   created: number;
   alreadyExisted: number;
   added: number;
@@ -38,11 +38,11 @@ export const cohortsApi = {
     http.post(`/cohorts/${cohortId}/members`, data).then((r) => r.data),
   addSelected: (cohortId: string, studentIds: string[]) =>
     http.post(`/cohorts/${cohortId}/members/select`, { studentIds }).then((r) => r.data),
-  addBulk: (cohortId: string, file: File) => {
+  import: (cohortId: string, file: File) => {
     const formData = new FormData();
     formData.append('file', file);
     return http
-      .post<BulkAddResult>(`/cohorts/${cohortId}/members/bulk`, formData, {
+      .post<ImportResult>(`/cohorts/${cohortId}/members/import`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
       .then((r) => r.data);

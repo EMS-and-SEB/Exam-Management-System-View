@@ -17,7 +17,7 @@ interface Enrollment {
   student: { studentId: string; name: string };
 }
 
-interface BulkEnrollResult {
+interface ImportResult {
   created: number;
   alreadyExisted: number;
   enrolled: number;
@@ -38,11 +38,11 @@ export const coursesApi = {
     http.post(`/courses/${courseId}/enrollments`, data).then((r) => r.data),
   enrollSelected: (courseId: string, studentIds: string[]) =>
     http.post(`/courses/${courseId}/enrollments/select`, { studentIds }).then((r) => r.data),
-  enrollBulk: (courseId: string, file: File) => {
+  import: (courseId: string, file: File) => {
     const formData = new FormData();
     formData.append('file', file);
     return http
-      .post<BulkEnrollResult>(`/courses/${courseId}/enrollments/bulk`, formData, {
+      .post<ImportResult>(`/courses/${courseId}/enrollments/import`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
       .then((r) => r.data);

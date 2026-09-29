@@ -9,7 +9,7 @@ import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 import { AddToRosterDrawer } from '@/components/shared/AddToRosterDrawer';
 import { getRosterColumns, type RosterRow } from '@/components/shared/rosterColumns';
 import {
-  useCohort, useMembers, useAddOne, useAddSelected, useAddBulk, useRemoveMember,
+  useCohort, useMembers, useAddOne, useAddSelected, useImportMembers, useRemoveMember,
 } from './hooks';
 
 export function CohortRosterPage() {
@@ -20,7 +20,7 @@ export function CohortRosterPage() {
   const { data: members, isLoading } = useMembers(cohortId);
   const addOne = useAddOne(cohortId);
   const addSelected = useAddSelected(cohortId);
-  const addBulk = useAddBulk(cohortId);
+  const importMembers = useImportMembers(cohortId);
   const removeMember = useRemoveMember(cohortId);
 
   const [addOpen, setAddOpen] = useState(false);
@@ -57,11 +57,11 @@ export function CohortRosterPage() {
         enrolledStudentIds={rows.map((row) => row.id)}
         onAddOne={(data, opts) => addOne.mutate(data, opts)}
         onAddSelected={(ids, opts) => addSelected.mutate(ids, opts)}
-        onAddBulk={(file) => addBulk.mutate(file)}
+        onImport={(file) => importMembers.mutate(file)}
         isAddingOne={addOne.isPending}
         isAddingSelected={addSelected.isPending}
-        isAddingBulk={addBulk.isPending}
-        bulkResult={addBulk.data}
+        isImporting={importMembers.isPending}
+        importResult={importMembers.data}
       />
 
       <ConfirmDialog

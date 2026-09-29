@@ -30,7 +30,7 @@ export function LoginPage() {
               </div>
 
               <h1 className="text-lg font-semibold">
-                EMS Exam Management System
+                CNCS Exam Management System
               </h1>
 
               <p className="text-sm text-muted-foreground mt-1">

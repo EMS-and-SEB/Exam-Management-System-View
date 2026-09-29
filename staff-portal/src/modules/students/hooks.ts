@@ -35,10 +35,10 @@ export function useUpdateStudent() {
   });
 }
 
-export function useBulkImportStudents() {
+export function useImportStudents() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: studentsApi.bulkImport,
+    mutationFn: studentsApi.import,
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: STUDENTS_KEY });
       toast.success(`Import finished — ${data.created} created, ${data.updated} updated.`);
@@ -46,10 +46,10 @@ export function useBulkImportStudents() {
   });
 }
 
-export function useStudentDirectorySearch(query: string) {
+export function useStudentDirectorySearch(query: string, limit = 20) {
   return useQuery({
-    queryKey: ['students-directory-search', query],
-    queryFn: () => studentsApi.list({ page: 1, limit: 20, search: query }),
+    queryKey: ['students-directory-search', query, limit],
+    queryFn: () => studentsApi.list({ page: 1, limit, search: query }),
     enabled: query.length > 0,
     select: (data) => data.students,
   });

@@ -7,7 +7,7 @@ import { DataTable } from '@/components/shared/DataTable';
 import { useStudents } from './hooks';
 import { getStudentColumns } from './columns';
 import { AddStudentDrawer } from './AddStudentDrawer';
-import { BulkImportStudentsDrawer } from './BulkImportStudentsDrawer';
+import { ImportStudentsDrawer } from './ImportStudentsDrawer';
 import { StudentDetailDrawer } from './StudentDetailDrawer';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import type { Student } from './api';
@@ -19,7 +19,7 @@ export function StudentDirectoryPage() {
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebouncedValue(search);
   const [addOpen, setAddOpen] = useState(false);
-  const [bulkOpen, setBulkOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
 
   const { data, isLoading } = useStudents({
@@ -38,9 +38,9 @@ export function StudentDirectoryPage() {
         subtitle="The shared student directory used across course and cohort rosters."
         actions={
           <>
-            <Button variant="outline" onClick={() => setBulkOpen(true)}>
+            <Button variant="outline" onClick={() => setImportOpen(true)}>
               <Upload className="h-4 w-4" />
-              Import CSV
+              Import
             </Button>
             <Button onClick={() => setAddOpen(true)}>
               <Plus className="h-4 w-4" />
@@ -76,7 +76,7 @@ export function StudentDirectoryPage() {
       />
 
       <AddStudentDrawer open={addOpen} onOpenChange={setAddOpen} />
-      <BulkImportStudentsDrawer open={bulkOpen} onOpenChange={setBulkOpen} />
+      <ImportStudentsDrawer open={importOpen} onOpenChange={setImportOpen} />
       <StudentDetailDrawer student={editingStudent} onOpenChange={(open) => !open && setEditingStudent(null)} />
     </div>
   );
