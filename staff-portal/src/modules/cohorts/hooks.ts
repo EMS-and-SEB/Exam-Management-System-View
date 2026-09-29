@@ -67,13 +67,13 @@ export function useAddSelected(cohortId: string) {
   });
 }
 
-export function useAddBulk(cohortId: string) {
+export function useImportMembers(cohortId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (file: File) => cohortsApi.addBulk(cohortId, file),
+    mutationFn: (file: File) => cohortsApi.import(cohortId, file),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: membersKey(cohortId) });
-      toast.success('Bulk import complete.');
+      toast.success('Import complete.');
     },
   });
 }

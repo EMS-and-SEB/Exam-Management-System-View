@@ -67,13 +67,13 @@ export function useEnrollSelected(courseId: string) {
   });
 }
 
-export function useEnrollBulk(courseId: string) {
+export function useImportEnrollments(courseId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (file: File) => coursesApi.enrollBulk(courseId, file),
+    mutationFn: (file: File) => coursesApi.import(courseId, file),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: enrollmentsKey(courseId) });
-      toast.success('Bulk import complete.');
+      toast.success('Import complete.');
     },
   });
 }

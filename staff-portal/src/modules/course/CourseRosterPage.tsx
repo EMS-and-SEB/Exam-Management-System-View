@@ -8,19 +8,24 @@ import { DataTable } from '@/components/shared/DataTable';
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 import { AddToRosterDrawer } from '@/components/shared/AddToRosterDrawer';
 import { getRosterColumns, type RosterRow } from '@/components/shared/rosterColumns';
+import { useAuthStore } from '@/store/auth.store';
 import {
-  useCourse, useEnrollments, useEnrollOne, useEnrollSelected, useEnrollBulk, useRemoveEnrollment,
+  useCourse, useEnrollments, useEnrollOne, useEnrollSelected, useImportEnrollments, useRemoveEnrollment,
 } from './hooks';
 
 export function CourseRosterPage() {
   const { id } = useParams<{ id: string }>();
   const courseId = id!;
 
+  const role = useAuthStore((s) => s.user?.role);
+  const isInstructor = role === 'INSTRUCTOR';
+
   const { data: course } = useCourse(courseId);
   const { data: enrollments, isLoading } = useEnrollments(courseId);
   const enrollOne = useEnrollOne(courseId);
+
   const enrollSelected = useEnrollSelected(courseId);
-  const enrollBulk = useEnrollBulk(courseId);
+  const importEnrollments = useImportEnrollments(courseId);
   const removeEnrollment = useRemoveEnrollment(courseId);
 
   const [addOpen, setAddOpen] = useState(false);
@@ -51,14 +56,17 @@ export function CourseRosterPage() {
         open={addOpen}
         onOpenChange={setAddOpen}
         entityLabel="Course"
+        mode={isInstructor ? 'single' : 'full'}
         enrolledStudentIds={rows.map((row) => row.id)}
         onAddOne={(data, opts) => enrollOne.mutate(data, opts)}
-        onAddSelected={(ids, opts) => enrollSelected.mutate(ids, opts)}
-        onAddBulk={(file) => enrollBulk.mutate(file)}
         isAddingOne={enrollOne.isPending}
-        isAddingSelected={enrollSelected.isPending}
-        isAddingBulk={enrollBulk.isPending}
-        bulkResult={enrollBulk.data}
+        {...(!isInstructor && {
+          onAddSelected: (ids, opts) => enrollSelected.mutate(ids, opts),
+          onImport: (file) => importEnrollments.mutate(file),
+          isAddingSelected: enrollSelected.isPending,
+          isImporting: importEnrollments.isPending,
+          importResult: importEnrollments.data,
+        })}
       />
 
       <ConfirmDialog
