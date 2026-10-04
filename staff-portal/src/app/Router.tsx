@@ -1,4 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
+
+// --- Existing Staff Imports ---
 import { LoginPage } from '@/modules/auth/LoginPage';
 import { ForgotPasswordPage, SetPasswordPage } from '@/modules/auth/PasswordResetPage';
 import { RequireAuth } from '@/components/guards/RequireAuth';
@@ -26,21 +28,34 @@ import { ResultsPage } from '@/modules/results/ResultsPage';
 import { CourseOrCohortResult } from '@/modules/results/CourseOrCohortResult';
 import { ExamResultsPage } from '@/modules/results/ExamResultsPage';
 
-// { path: '/results', element: <ResultsParentListPage /> },
-// { path: '/results/course/:courseId', element: <Course-or-Cohort-Result /> },
-// { path: '/results/cohort/:cohortId', element: <Course-or-Cohort-Result /> },
-// { path: '/results/exam/:id', element: <ExamResultsPage /> },
+// --- NEW: Student Portal Imports ---
+import { StudentLoginPage } from '@/modules/portal/StudentLoginPage';
+import { StudentLayout } from '@/components/layout/StudentLayout';
+import { StudentCoursesPage } from '@/modules/portal/StudentCoursesPage';
+import { StudentExamsPage } from '@/modules/portal/StudentExamsPage';
+import { StudentResultsPage } from '@/modules/portal/StudentResultsPage';
+
 const router = createBrowserRouter([
+  // 1. Default Redirect
   { path: '/', element: <Navigate to="/dashboard" replace /> },
+
+  // 2. Public Auth Routes (Staff)
   { path: '/login', element: <LoginPage />, errorElement: <RouteErrorBoundary /> },
   { path: '/forgot-password', element: <ForgotPasswordPage /> },
   { path: '/set-password', element: <SetPasswordPage /> },
+
+  // 3. NEW: Public Student Login Route
+  { path: '/student/login', element: <StudentLoginPage />, errorElement: <RouteErrorBoundary /> },
+
+  // 4. Protected Routes
   {
     element: <RequireAuth />,
     errorElement: <RouteErrorBoundary />,
     children: [
       { path: '/invigilation', element: <InvigilationRoute /> },
       { path: '/invigilation/:id', element: <InvigilationRoute /> },
+      
+      // --- Staff Protected Routes ---
       {
         element: <RequireRole roles={['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR', 'EXAM_ADMIN']} />,
         children: [
@@ -99,8 +114,24 @@ const router = createBrowserRouter([
           },
         ],
       },
+
+      // --- NEW: Student Protected Routes ---
+      // TEMPORARY FIX: Removed RequireRole wrapper to allow testing with mock data.
+      // When the real backend is connected, the real JWT will contain the 'STUDENT' role, and we will put the guard back.
+      {
+        element: <StudentLayout />,
+        errorElement: <RouteErrorBoundary />,
+        children: [
+          { path: '/student', element: <Navigate to="/student/courses" replace /> },
+          { path: '/student/courses', element: <StudentCoursesPage /> },
+          { path: '/student/exams', element: <StudentExamsPage /> },
+          { path: '/student/results', element: <StudentResultsPage /> },
+        ],
+      },
     ],
   },
+  
+  // 5. Catch-all for undefined routes
   { path: '*', element: <RouteErrorBoundary /> },
 ]);
 

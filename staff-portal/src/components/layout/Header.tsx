@@ -1,3 +1,4 @@
+// src/components/layout/Header.tsx
 import { Link, useLocation, useMatches } from 'react-router-dom';
 import {
   Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList,
@@ -11,18 +12,35 @@ import { useAuthStore } from '@/store/auth.store';
 
 interface RouteHandle { crumb?: string }
 
-export function Header({ onOpenProfile }: { onOpenProfile: () => void }) {
-  const user = useAuthStore((s) => s.user);
+interface HeaderProps {
+  onOpenProfile: () => void;
+  user?: { name: string; email?: string; role?: string };
+}
+
+export function Header({ onOpenProfile, user: overrideUser }: HeaderProps) {
+  const staffUser = useAuthStore((s) => s.user);
+  
+  // Use the passed student user, otherwise fallback to staff user
+  const user = overrideUser || staffUser;
+
   const location = useLocation();
   const matches = useMatches();
 
-  if (!user) return null;
-
+  // Don't return null - always render the header with at least the button
   const activeNavItem = navConfig.find((item) => location.pathname.startsWith(item.path));
   const extraCrumbs = matches
     .map((m) => (m.handle as RouteHandle | undefined)?.crumb)
     .filter((c): c is string => Boolean(c));
-  const initials = user.name.split(' ').map((n) => n[0]).join('').slice(0, 2);
+    
+  // Calculate initials - default to "ST" if no user
+  const initials = user?.name 
+    ? user.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2)
+    : 'ST';
+
+  // Safely get portal title
+  const portalTitle = user?.role 
+    ? portalTitleByRole[user.role as keyof typeof portalTitleByRole] || "Portal"
+    : "EMS PORTAL";
 
   return (
     <header className="flex h-14 items-center justify-between border-b px-4">
@@ -31,11 +49,11 @@ export function Header({ onOpenProfile }: { onOpenProfile: () => void }) {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink render={<Link to="/dashboard" />}>
-                {portalTitleByRole[user.role]}
+              <BreadcrumbLink render={<Link to={overrideUser ? "/student/courses" : "/dashboard"} />}>
+                {portalTitle}
               </BreadcrumbLink>
             </BreadcrumbItem>
-            {activeNavItem && (
+            {activeNavItem && !overrideUser && (
               <>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
