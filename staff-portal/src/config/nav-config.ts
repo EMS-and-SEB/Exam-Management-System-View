@@ -1,6 +1,6 @@
 import {
   LayoutGrid, Users, ClipboardList, BookOpen, Eye, ClipboardCheck,
-  BarChart3, UserCog, ScrollText, ShieldCheck, type LucideIcon,
+  BarChart3, UserCog, ScrollText, ShieldCheck, type LucideIcon, UserCheck,
 } from 'lucide-react';
 import type { StaffRole } from '@/types/role';
 
@@ -13,23 +13,35 @@ export interface NavItem {
 }
 
 export const navConfig: NavItem[] = [
-  { label: 'Dashboard', path: '/dashboard', icon: LayoutGrid, color: 'text-blue-500', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR', 'EXAM_ADMIN'] },
-  { label: 'Courses', path: '/courses', icon: Users, color: 'text-emerald-500', roles: ['INSTRUCTOR', 'EXAM_ADMIN'] },
-  { label: 'Cohorts', path: '/cohorts', icon: Users, color: 'text-emerald-500', roles: ['EXIT_EXAM_COORDINATOR', 'EXAM_ADMIN'] },
-  { label: 'Students', path: '/students', icon: UserCog, color: 'text-cyan-500', roles: ['EXAM_ADMIN'] },
+  { label: 'Dashboard', path: '/dashboard', icon: LayoutGrid, color: 'text-blue-500', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR', 'SUPER_ADMIN', 'UNIT_ADMIN'] },
+  { label: 'Staff', path: '/staff', icon: UserCog, color: 'text-indigo-500', roles: ['SUPER_ADMIN', 'UNIT_ADMIN'] },
+  { label: 'Students', path: '/students', icon: UserCog, color: 'text-cyan-500', roles: ['SUPER_ADMIN', 'UNIT_ADMIN'] },
+  { label: 'Courses', path: '/courses', icon: Users, color: 'text-emerald-500', roles: ['INSTRUCTOR', 'SUPER_ADMIN', 'UNIT_ADMIN'] },
+  { label: 'Cohorts', path: '/cohorts', icon: Users, color: 'text-emerald-500', roles: ['EXIT_EXAM_COORDINATOR', 'SUPER_ADMIN', 'UNIT_ADMIN'] },
+  { label: 'Invigilator Assignment', path: '/invigilator-assignment', icon: UserCheck, color: 'text-violet-500', roles: ['UNIT_ADMIN'] },
   { label: 'Exams & Assessments', path: '/exams', icon: ClipboardList, color: 'text-blue-500', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR'] },
   { label: 'Question Bank', path: '/questions', icon: BookOpen, color: 'text-amber-500', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR'] },
   { label: 'Invigilation', path: '/invigilation', icon: Eye, color: 'text-violet-500', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR', 'INVIGILATOR'] },
   { label: 'Grading', path: '/grading', icon: ClipboardCheck, color: 'text-teal-500', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR'] },
   { label: 'Results', path: '/results', icon: BarChart3, color: 'text-rose-500', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR'] },
-  { label: 'Staff', path: '/staff', icon: UserCog, color: 'text-indigo-500', roles: ['EXAM_ADMIN'] },
-  { label: 'Audit Log', path: '/audit', icon: ScrollText, color: 'text-slate-500', roles: ['EXAM_ADMIN'] },
-  { label: 'Retention Policy', path: '/retention-policy', icon: ShieldCheck, color: 'text-slate-500', roles: ['EXAM_ADMIN'] },
+  { label: 'Audit Log', path: '/audit', icon: ScrollText, color: 'text-slate-500', roles: ['SUPER_ADMIN'] },
+  { label: 'Retention Policy', path: '/retention-policy', icon: ShieldCheck, color: 'text-slate-500', roles: ['SUPER_ADMIN'] },
 ];
+
+const unitAdminNavOrder = ['/dashboard', '/courses', '/cohorts', '/invigilator-assignment', '/staff', '/students'];
+
+export function getNavItems(role: StaffRole): NavItem[] {
+  const items = navConfig.filter((item) => item.roles.includes(role));
+  if (role !== 'UNIT_ADMIN') return items;
+
+  const order = new Map(unitAdminNavOrder.map((path, index) => [path, index]));
+  return items.toSorted((a, b) => (order.get(a.path) ?? Number.MAX_SAFE_INTEGER) - (order.get(b.path) ?? Number.MAX_SAFE_INTEGER));
+}
 
 export const portalTitleByRole: Record<StaffRole, string> = {
   INSTRUCTOR: 'Instructor Portal',
   EXIT_EXAM_COORDINATOR: 'Exam Coordination Portal',
   INVIGILATOR: 'Invigilation Portal',
-  EXAM_ADMIN: 'Exam Administration Portal',
+  SUPER_ADMIN: 'Exam Administration Portal',
+  UNIT_ADMIN: 'Unit Administration Portal',
 };

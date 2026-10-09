@@ -18,8 +18,8 @@ interface OtpResponse {
 }
 
 export const invigilationApi = {
-  listAssigned: () => http.get<Exam[]>('/exams').then((r) => r.data),
-  getExam: (id: string) => http.get<Exam>(`/exams/${id}`).then((r) => r.data),
-  getOtp: (id: string) => http.get<OtpResponse>(`/exams/${id}/otp`).then((r) => r.data),
-  getRoster: (id: string) => http.get<RosterEntry[]>(`/exams/${id}/roster`).then((r) => r.data),
+  listAssigned: () => http.get<Exam[]>('/invigilation/exams').then((r) => r.data),
+  getExam: (id: string) => http.get<Exam>(`/invigilation/exams/${id}`).then((r) => r.data),
+  getOtp: (id: string) => http.get<OtpResponse>(`/invigilation/exams/${id}/otp`).then((r) => r.data),
+  getRoster: (id: string) => http.get<RosterEntry[]>(`/invigilation/exams/${id}/roster`).then((r) => r.data),
 };

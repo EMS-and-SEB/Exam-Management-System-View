@@ -17,8 +17,26 @@ interface StudentListResponse {
 
 interface ImportResult {
   created: number;
-  updated: number;
+  alreadyExisted: number;
+  nameMismatches: {
+    row: number;
+    studentId: string;
+    existingName: string;
+    importedName: string;
+  }[];
   errors: { row: number; reason: string }[];
+}
+
+export interface EnrollmentSummary {
+  id: string;
+  name: string;
+  status: 'ACTIVE' | 'ARCHIVED';
+  orgUnitId: string;
+}
+
+export interface StudentEnrollments {
+  courses: EnrollmentSummary[];
+  cohorts: EnrollmentSummary[];
 }
 
 export const studentsApi = {
@@ -27,6 +45,9 @@ export const studentsApi = {
 
   getOne: (id: string) => http.get<Student>(`/students/${id}`).then((r) => r.data),
 
+  getEnrollments: (id: string) =>
+    http.get<StudentEnrollments>(`/students/${id}/enrollments`).then((r) => r.data),
+  
   create: (data: { studentId: string; name: string }) =>
     http.post<Student>('/students', data).then((r) => r.data),
 

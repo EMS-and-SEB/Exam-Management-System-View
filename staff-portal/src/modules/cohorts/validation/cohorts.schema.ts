@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const createCohortSchema = z.object({
   name: z.string().min(1, 'Cohort name is required.'),
   coordinatorId: z.string().uuid('Select a coordinator.'),
+    orgUnitId: z.string().uuid('Select a unit.').optional(),
 });
 export type CreateCohortValues = z.infer<typeof createCohortSchema>;
 

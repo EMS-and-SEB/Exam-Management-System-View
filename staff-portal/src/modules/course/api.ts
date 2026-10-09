@@ -4,6 +4,7 @@ export interface Course {
   id: string;
   name: string;
   instructorId: string;
+  orgUnitId: string;
   status: 'ACTIVE' | 'ARCHIVED';
   createdAt: string;
   instructor?: { name: string; email: string };
@@ -21,13 +22,19 @@ interface ImportResult {
   created: number;
   alreadyExisted: number;
   enrolled: number;
+  nameMismatches: {
+    row: number;
+    studentId: string;
+    existingName: string;
+    importedName: string;
+  }[];
   errors: { row: number; reason: string }[];
 }
 
 export const coursesApi = {
   list: () => http.get<Course[]>('/courses').then((r) => r.data),
   getOne: (id: string) => http.get<Course>(`/courses/${id}`).then((r) => r.data),
-  create: (data: { name: string; instructorId: string }) =>
+  create: (data: { name: string; instructorId: string, orgUnitId?: string}) =>
     http.post<Course>('/courses', data).then((r) => r.data),
   update: (id: string, data: { name?: string; instructorId?: string; status?: string }) =>
     http.patch<Course>(`/courses/${id}`, data).then((r) => r.data),

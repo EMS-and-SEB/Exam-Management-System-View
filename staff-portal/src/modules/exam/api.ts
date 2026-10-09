@@ -18,6 +18,18 @@ export interface Exam {
   pendingGradingCount?: number;
   course?: { name: string };
   cohort?: { name: string };
+  invigilator?: { id: string; name: string } | null;
+}
+
+export interface InvigilatorAssignmentExam {
+  id: string;
+  title: string;
+  examType: ExamType;
+  status: ExamStatus;
+  scheduledStart: string | null;
+  course: { name: string } | null;
+  cohort: { name: string } | null;
+  invigilator: { id: string; name: string } | null;
 }
 
 export interface ExamQuestionLink {
@@ -29,17 +41,12 @@ export interface ExamQuestionLink {
   order: number;
 }
 
-interface RosterEntry {
-  id: string;
-  status: string;
-  startedAt: string | null;
-  endsAt: string | null;
-  submittedAt: string | null;
-  student: { studentId: string; name: string };
-}
-
 export const examApi = {
   list: () => http.get<Exam[]>("/exams").then((r) => r.data),
+  listForInvigilatorAssignment: () =>
+    http
+      .get<InvigilatorAssignmentExam[]>("/exams/invigilator-assignments")
+      .then((r) => r.data),
   getOne: (id: string) => http.get<Exam>(`/exams/${id}`).then((r) => r.data),
   create: (data: {
     examType: ExamType;
@@ -70,8 +77,6 @@ export const examApi = {
     http
       .post(`/exams/${id}/invigilators`, { invigilatorId })
       .then((r) => r.data),
-  removeInvigilator: (id: string, staffId: string) =>
-    http.delete(`/exams/${id}/invigilators/${staffId}`),
 
   release: (id: string) =>
     http
@@ -80,10 +85,4 @@ export const examApi = {
   close: (id: string) =>
     http.post<Exam>(`/exams/${id}/close`).then((r) => r.data),
 
-  getOtp: (id: string) =>
-    http
-      .get<{ otp: string; expiresAt: string }>(`/exams/${id}/otp`)
-      .then((r) => r.data),
-  getRoster: (id: string) =>
-    http.get<RosterEntry[]>(`/exams/${id}/roster`).then((r) => r.data),
 };

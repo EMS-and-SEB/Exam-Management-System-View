@@ -14,7 +14,7 @@ interface StudentDetailDrawerProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function StudentDetailDrawer({ student, onOpenChange }: StudentDetailDrawerProps) {
+export function StudentEditDrawer({ student, onOpenChange }: StudentDetailDrawerProps) {
   if (!student) return null;
   return <StudentDetailForm key={student.id} student={student} onOpenChange={onOpenChange} />;
 }

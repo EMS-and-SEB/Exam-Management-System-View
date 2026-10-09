@@ -2,13 +2,25 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { staffApi } from './api';
 import { useAuthStore } from '@/store/auth.store';
+import type { StaffRole } from '@/types/role';
 
 const STAFF_KEY = ['staff'] as const;
 
-export function useStaff(params: { page: number; limit: number; search?: string }) {
+export function useStaff(params: {
+  page: number;
+  limit: number;
+  search?: string;
+  role?: StaffRole | StaffRole[];
+  orgUnitId?: string;
+  isActive?: boolean;
+  enabled?: boolean;
+}) {
+  const { enabled, ...queryParams } = params;
+
   return useQuery({
     queryKey: [...STAFF_KEY, params],
-    queryFn: () => staffApi.list(params),
+    queryFn: () => staffApi.list(queryParams),
+    enabled: enabled ?? true,
     placeholderData: (prev) => prev,
   });
 }
@@ -16,7 +28,7 @@ export function useStaff(params: { page: number; limit: number; search?: string 
 export function useStaffSearch(search: string, role?: string) {
   return useQuery({
     queryKey: ['staff-search', search, role],
-    queryFn: () => staffApi.list({ page: 1, limit: 20, search: search || undefined, role: role as 'INVIGILATOR' | undefined }),
+    queryFn: () => staffApi.list({ page: 1, limit: 20, search: search || undefined, role: role as StaffRole | undefined }),
     enabled: search.length > 0,
     select: (data) => (role ? data.staff.filter((s) => s.role === role) : data.staff),
   });
@@ -45,7 +57,7 @@ export function useUpdateStaff() {
         statusChanged && variables.data.isActive === false
           ? 'Staff account deactivated.'
           : statusChanged && variables.data.isActive === true
-            ? 'Staff account reactivated.'
+            ? 'Staff account re-activated.'
             : 'Staff account updated.',
       );
     },

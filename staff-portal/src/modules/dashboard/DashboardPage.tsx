@@ -1,3 +1,6 @@
+import { useState } from 'react';
+import { BookOpen, Layers, UserPlus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { useAuthStore } from '@/store/auth.store';
 import { AdminDashboard } from './AdminDashboard';
@@ -5,12 +8,38 @@ import { StaffDashboard } from './StaffDashboard';
 
 export function DashboardPage() {
   const user = useAuthStore((s) => s.user);
+  const [activeDrawer, setActiveDrawer] = useState<'staff' | 'course' | 'cohort' | null>(null);
   if (!user) return null;
+  const isAdmin = user.role === 'SUPER_ADMIN' || user.role === 'UNIT_ADMIN';
 
   return (
     <div>
-      <PageHeader title={`Welcome back, ${user.name.trim().split(/\s+/).slice(0, 2).join(' ')}`} />
-      {user.role === 'EXAM_ADMIN' ? <AdminDashboard /> : <StaffDashboard />}
+      <PageHeader
+        title={`Welcome back, ${user.name.trim().split(/\s+/).slice(0, 2).join(' ')}`}
+        actions={isAdmin ? (
+          <>
+            {user.role === 'SUPER_ADMIN' && (
+              <Button onClick={() => setActiveDrawer('staff')}>
+                <UserPlus className="h-4 w-4" />
+                Add Staff
+              </Button>
+            )}
+            <Button variant="outline" onClick={() => setActiveDrawer('course')}>
+              <BookOpen className="h-4 w-4 text-amber-500 dark:text-amber-400" />
+              Create Course
+            </Button>
+            <Button variant="outline" onClick={() => setActiveDrawer('cohort')}>
+              <Layers className="h-4 w-4 text-violet-500 dark:text-violet-400" />
+              Create Cohort
+            </Button>
+          </>
+        ) : undefined}
+      />
+      {isAdmin ? (
+        <AdminDashboard activeDrawer={activeDrawer} setActiveDrawer={setActiveDrawer} />
+      ) : (
+        <StaffDashboard />
+      )}
     </div>
   );
 }

@@ -18,7 +18,7 @@ import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 
-const STUDENT_ID_PATTERN = /^UGR\/\d{4}\/\d{2}$/;
+const STUDENT_ID_PATTERN = /^UGR\/\d{4}\/\d{2}$/i;
 
 /** Matches the backend's maximum page size for GET /students. */
 const SEARCH_FETCH_LIMIT = 100;
@@ -46,6 +46,12 @@ type AddOneValues = z.infer<typeof addOneSchema>;
 interface ImportResult {
   created: number;
   alreadyExisted: number;
+  nameMismatches: {
+    row: number;
+    studentId: string;
+    existingName: string;
+    importedName: string;
+  }[];
   enrolled?: number;
   added?: number;
   errors: { row: number; reason: string }[];
@@ -395,13 +401,35 @@ export function AddToRosterDrawer({
                     ? "enrolled to course."
                     : "added to cohort."}
                 </div>
-                {importResult.errors.length > 0 && (
+                {importResult.nameMismatches.length > 0 && (
                   <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 space-y-1 dark:bg-amber-950 dark:border-amber-900">
                     <div className="flex items-center gap-2 text-sm font-medium text-amber-700 dark:text-amber-400">
                       <AlertTriangle className="h-4 w-4" />
-                      {importResult.errors.length} row(s) skipped
+                        Name mismatches
                     </div>
-                  </div>
+                      <ul className="text-xs text-amber-700 dark:text-amber-400 space-y-0.5">
+                        {importResult.nameMismatches.map((mismatch) => (
+                          <li key={`${mismatch.row}-${mismatch.studentId}`}>
+                            Row {mismatch.row} — {mismatch.existingName} → {mismatch.importedName}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                )}
+                {importResult.errors.length > 0 && (
+                    <div className="rounded-lg border border-red-200 bg-red-50 p-3 space-y-1 dark:bg-red-950 dark:border-red-900">
+                      <div className="flex items-center gap-2 text-sm font-medium text-red-700 dark:text-red-400">
+                        <AlertTriangle className="h-4 w-4" />
+                        {importResult.errors.length} row(s) skipped
+                      </div>
+                      <ul className="text-xs text-red-700 dark:text-red-400 space-y-0.5">
+                        {importResult.errors.map((error) => (
+                          <li key={`${error.row}-${error.reason}`}>
+                            Row {error.row} — {error.reason}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                 )}
               </div>
             )}

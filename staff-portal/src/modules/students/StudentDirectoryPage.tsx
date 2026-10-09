@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Upload, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +9,7 @@ import { useStudents } from './hooks';
 import { getStudentColumns } from './columns';
 import { AddStudentDrawer } from './AddStudentDrawer';
 import { ImportStudentsDrawer } from './ImportStudentsDrawer';
-import { StudentDetailDrawer } from './StudentDetailDrawer';
+import { StudentEditDrawer } from './StudentEditDrawer';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import type { Student } from './api';
 
@@ -21,6 +22,7 @@ export function StudentDirectoryPage() {
   const [addOpen, setAddOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+  const navigate = useNavigate();
 
   const { data, isLoading } = useStudents({
     page: page + 1,
@@ -28,7 +30,7 @@ export function StudentDirectoryPage() {
     search: debouncedSearch || undefined,
   });
 
-  const columns = getStudentColumns({ onEdit: setEditingStudent });
+  const columns = getStudentColumns({ onView: (student) => navigate(`/students/${student.id}`), onEdit: setEditingStudent });
 
   return (
     <div>
@@ -68,6 +70,7 @@ export function StudentDirectoryPage() {
         data={data?.students ?? []}
         isLoading={isLoading}
         emptyMessage="No students found."
+        onRowClick={(student) => navigate(`/students/${student.id}`)}
         manualPagination={{
           pageIndex: page,
           pageCount: data?.totalPages ?? 0,
@@ -77,7 +80,7 @@ export function StudentDirectoryPage() {
 
       <AddStudentDrawer open={addOpen} onOpenChange={setAddOpen} />
       <ImportStudentsDrawer open={importOpen} onOpenChange={setImportOpen} />
-      <StudentDetailDrawer student={editingStudent} onOpenChange={(open) => !open && setEditingStudent(null)} />
+      <StudentEditDrawer student={editingStudent} onOpenChange={(open) => !open && setEditingStudent(null)} />
     </div>
   );
 }

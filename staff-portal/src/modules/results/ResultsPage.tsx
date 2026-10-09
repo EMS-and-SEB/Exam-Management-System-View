@@ -10,10 +10,9 @@ export function ResultsPage() {
   const navigate = useNavigate();
   const role = useAuthStore((s) => s.user!.role);
   const isInstructor = role === 'INSTRUCTOR';
-  const isAdmin = role === 'EXAM_ADMIN';
 
-  const { data: courses, isLoading: coursesLoading } = useCourses(isInstructor || isAdmin);
-  const { data: cohorts, isLoading: cohortsLoading } = useCohorts(!isInstructor || isAdmin);
+  const { data: courses, isLoading: coursesLoading } = useCourses(isInstructor);
+  const { data: cohorts, isLoading: cohortsLoading } = useCohorts(!isInstructor);
 
   const isLoading = isInstructor ? coursesLoading : cohortsLoading;
   const items = isInstructor ? courses : cohorts;

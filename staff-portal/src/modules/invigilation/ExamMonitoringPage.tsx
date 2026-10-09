@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Copy, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
@@ -23,11 +23,19 @@ const STATUS_FILTERS = [
 export function ExamMonitoringPage() {
   const { id } = useParams<{ id: string }>();
   const examId = id!;
-  const { exam, otp, roster } = useExamMonitoring(examId);
+  const { exam, otp, roster, accessRevoked } = useExamMonitoring(examId);
+  const navigate = useNavigate();
 
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<(typeof STATUS_FILTERS)[number]['key']>('all');
 
+  useEffect(() => {
+    if (accessRevoked) {
+      navigate('/invigilation', { replace: true });
+    }
+  }, [accessRevoked, navigate]);
+
+  if (accessRevoked) return null;
   if (exam.isLoading || roster.isLoading || !exam.data) return <LoadingState label="Loading exam monitoring..." />;
 
   const filtered = (roster.data ?? []).filter((entry) => {

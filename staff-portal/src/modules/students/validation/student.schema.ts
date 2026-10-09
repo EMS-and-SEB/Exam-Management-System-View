@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const STUDENT_ID_PATTERN = /^UGR\/\d{4}\/\d{2}$/;
+const STUDENT_ID_PATTERN = /^UGR\/\d{4}\/\d{2}$/i;
 
 export const createStudentSchema = z.object({
   studentId: z

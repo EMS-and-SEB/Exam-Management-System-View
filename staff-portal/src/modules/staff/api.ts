@@ -6,6 +6,11 @@ export interface StaffMember {
   name: string;
   email: string;
   role: StaffRole;
+  orgUnitId: string;
+  orgUnit?: {
+    id: string;
+    name: string;
+  };
   isActive: boolean;
   createdAt: string;
   courses?: AssignedResource[];
@@ -26,13 +31,22 @@ interface StaffListResponse {
   totalPages: number;
 }
 
+export interface CreateStaffPayload {
+  name: string;
+  email: string;
+  role: StaffRole;
+  canCreateAdmins?: boolean;
+  orgUnitId?: string;
+  newOrgUnitName?: string;
+}
+
 export const staffApi = {
-  list: (params: { page: number; limit: number; search?: string; role?: StaffRole }) =>
+  list: (params: { page: number; limit: number; search?: string; role?: StaffRole | StaffRole[]; orgUnitId?: string; isActive?: boolean }) =>
     http.get<StaffListResponse>('/staff', { params }).then((r) => r.data),
 
   getOne: (id: string) => http.get<StaffMember>(`/staff/${id}`).then((r) => r.data),
 
-  create: (data: { name: string; email: string; role: StaffRole }) =>
+  create: (data: CreateStaffPayload) =>
     http.post<StaffMember>('/staff', data).then((r) => r.data),
 
   update: (id: string, data: { name?: string; email?: string; isActive?: boolean }) =>

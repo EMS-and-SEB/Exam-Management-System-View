@@ -39,12 +39,27 @@ function getRequestErrorMessage(error: unknown) {
   return error.message || 'Something went wrong. Please try again.';
 }
 
+interface QueryErrorMeta {
+  expectedErrorStatuses?: number[];
+}
+
+function getErrorStatus(error: unknown) {
+  if (typeof error !== 'object' || error === null || !('response' in error)) return undefined;
+  return (error.response as { status?: number } | undefined)?.status;
+}
+
 const showRequestError = (error: unknown) => {
   toast.error(getRequestErrorMessage(error));
 };
 
+const showQueryError = (error: unknown, query: { meta?: Record<string, unknown> }) => {
+  const expectedStatuses = (query?.meta as QueryErrorMeta | undefined)?.expectedErrorStatuses;
+  if (expectedStatuses?.includes(getErrorStatus(error) ?? -1)) return;
+  showRequestError(error);
+};
+
 const queryClient = new QueryClient({
-  queryCache: new QueryCache({ onError: showRequestError }),
+  queryCache: new QueryCache({ onError: showQueryError }),
   mutationCache: new MutationCache({ onError: showRequestError }),
 });
 

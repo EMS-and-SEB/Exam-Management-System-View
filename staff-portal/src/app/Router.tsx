@@ -6,6 +6,7 @@ import { RequireRole } from '@/components/guards/RequireRole';
 import { StaffLayout } from '@/components/layout/StaffLayout';
 import { RouteErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { StudentDirectoryPage } from '@/modules/students/StudentDirectoryPage';
+import { StudentDetailPage } from '@/modules/students/StudentDetailPage';
 import { StaffListPage } from '@/modules/staff/StaffListPage';
 import { CourseListPage } from '@/modules/course/CourseListPage';
 import { CourseRosterPage } from '@/modules/course/CourseRosterPage';
@@ -25,11 +26,8 @@ import { InvigilationRoute } from '@/modules/invigilation/InvigilationRoute';
 import { ResultsPage } from '@/modules/results/ResultsPage';
 import { CourseOrCohortResult } from '@/modules/results/CourseOrCohortResult';
 import { ExamResultsPage } from '@/modules/results/ExamResultsPage';
+import { InvigilatorAssignmentPage } from '@/modules/invigilator-assignment/InvigilatorAssignmentPage';
 
-// { path: '/results', element: <ResultsParentListPage /> },
-// { path: '/results/course/:courseId', element: <Course-or-Cohort-Result /> },
-// { path: '/results/cohort/:cohortId', element: <Course-or-Cohort-Result /> },
-// { path: '/results/exam/:id', element: <ExamResultsPage /> },
 const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/dashboard" replace /> },
   { path: '/login', element: <LoginPage />, errorElement: <RouteErrorBoundary /> },
@@ -42,7 +40,7 @@ const router = createBrowserRouter([
       { path: '/invigilation', element: <InvigilationRoute /> },
       { path: '/invigilation/:id', element: <InvigilationRoute /> },
       {
-        element: <RequireRole roles={['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR', 'EXAM_ADMIN']} />,
+        element: <RequireRole roles={['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR', 'SUPER_ADMIN', 'UNIT_ADMIN']} />,
         children: [
           {
             element: <StaffLayout />,
@@ -51,16 +49,15 @@ const router = createBrowserRouter([
               { path: '/dashboard', element: <DashboardPage /> },
               { path: '/unauthorized', element: <div>You don't have access to this page.</div> },
               {
-                element: <RequireRole roles={['INSTRUCTOR', 'EXAM_ADMIN']} />,
+                element: <RequireRole roles={['INSTRUCTOR', 'SUPER_ADMIN', 'UNIT_ADMIN']} />,
                 children: [
                   { path: '/courses', element: <CourseListPage /> },
                   { path: '/courses/:id', element: <CourseRosterPage /> },
                 ],
               },
               {
-                element: <RequireRole roles={['EXIT_EXAM_COORDINATOR', 'EXAM_ADMIN']} />,
+                element: <RequireRole roles={['EXIT_EXAM_COORDINATOR', 'SUPER_ADMIN', 'UNIT_ADMIN']} />,
                 children: [
-                  { path: '/students', element: <StudentDirectoryPage /> },
                   { path: '/cohorts', element: <CohortListPage /> },
                   { path: '/cohorts/:id', element: <CohortRosterPage /> },
                 ],
@@ -88,13 +85,26 @@ const router = createBrowserRouter([
                 ],
               },
               {
-                element: <RequireRole roles={['EXAM_ADMIN']} />,
+                element: <RequireRole roles={['SUPER_ADMIN', 'UNIT_ADMIN']} />,
                 children: [
                   { path: '/staff', element: <StaffListPage /> },
+                  { path: '/students', element: <StudentDirectoryPage /> },
+                  { path: '/students/:id', element: <StudentDetailPage /> },
+                ],
+              },
+              {
+                element: <RequireRole roles={['SUPER_ADMIN']} />,
+                children: [
                   { path: '/audit', element: <AuditLogPage /> },
                   { path: '/retention-policy', element: <RetentionPolicyPage /> },
                 ],
               },
+              {
+                element: <RequireRole roles={['UNIT_ADMIN']} />,
+                children: [ 
+                   { path: '/invigilator-assignment', element: <InvigilatorAssignmentPage /> },
+                ]
+              }
             ],
           },
         ],

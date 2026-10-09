@@ -6,6 +6,11 @@ interface StaffUser {
   name: string;
   email: string;
   role: StaffRole;
+  orgUnitId: string;
+  orgUnit?: {
+    id: string;
+    name: string;
+  };
 }
 
 interface AuthState {

@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const createCourseSchema = z.object({
   name: z.string().min(1, 'Course name is required.'),
   instructorId: z.string().uuid('Select an instructor.'),
+  orgUnitId: z.string().uuid('Select a unit.').optional(),
 });
 export type CreateCourseValues = z.infer<typeof createCourseSchema>;
 

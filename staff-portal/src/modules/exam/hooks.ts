@@ -5,9 +5,17 @@ import { examApi } from './api';
 const EXAMS_KEY = ['exams'] as const;
 const examKey = (id: string) => [...EXAMS_KEY, id];
 const questionsKey = (id: string) => [...EXAMS_KEY, id, 'questions'];
+const INVIGILATOR_ASSIGNMENTS_KEY = [...EXAMS_KEY, 'invigilator-assignments'] as const;
 
 export function useExams() {
   return useQuery({ queryKey: EXAMS_KEY, queryFn: examApi.list });
+}
+
+export function useInvigilatorAssignments() {
+  return useQuery({
+    queryKey: INVIGILATOR_ASSIGNMENTS_KEY,
+    queryFn: examApi.listForInvigilatorAssignment,
+  });
 }
 
 export function useExam(id: string) {
@@ -73,14 +81,13 @@ export function useDetachQuestion(id: string) {
   });
 }
 
-export function useAssignInvigilator(id: string) {
+export function useAssignInvigilator() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (invigilatorId: string) => examApi.assignInvigilator(id, invigilatorId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: examKey(id) });
-      toast.success('Invigilator assigned.');
-    },
+    mutationFn: ({ examId, invigilatorId }: { examId: string; invigilatorId: string }) =>
+      examApi.assignInvigilator(examId, invigilatorId),
+    onSuccess: () => toast.success('Invigilator updated.'),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: INVIGILATOR_ASSIGNMENTS_KEY }),
   });
 }
 

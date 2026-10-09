@@ -8,6 +8,7 @@ import { DataTable } from '@/components/shared/DataTable';
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 import { AddToRosterDrawer } from '@/components/shared/AddToRosterDrawer';
 import { getRosterColumns, type RosterRow } from '@/components/shared/rosterColumns';
+import { useAuthStore } from '@/store/auth.store';
 import {
   useCohort, useMembers, useAddOne, useAddSelected, useImportMembers, useRemoveMember,
 } from './hooks';
@@ -15,6 +16,9 @@ import {
 export function CohortRosterPage() {
   const { id } = useParams<{ id: string }>();
   const cohortId = id!;
+
+  const role = useAuthStore((s) => s.user?.role);
+  const isCoordinator = role === 'EXIT_EXAM_COORDINATOR';
 
   const { data: cohort } = useCohort(cohortId);
   const { data: members, isLoading } = useMembers(cohortId);
@@ -54,14 +58,17 @@ export function CohortRosterPage() {
         open={addOpen}
         onOpenChange={setAddOpen}
         entityLabel="Cohort"
+        mode={isCoordinator ? 'single' : 'full'}
         enrolledStudentIds={rows.map((row) => row.id)}
         onAddOne={(data, opts) => addOne.mutate(data, opts)}
-        onAddSelected={(ids, opts) => addSelected.mutate(ids, opts)}
-        onImport={(file) => importMembers.mutate(file)}
         isAddingOne={addOne.isPending}
-        isAddingSelected={addSelected.isPending}
-        isImporting={importMembers.isPending}
-        importResult={importMembers.data}
+        {...(!isCoordinator && {
+          onAddSelected: (ids, opts) => addSelected.mutate(ids, opts),
+          onImport: (file) => importMembers.mutate(file),
+          isAddingSelected: addSelected.isPending,
+          isImporting: importMembers.isPending,
+          importResult: importMembers.data,
+        })}
       />
 
       <ConfirmDialog
@@ -72,8 +79,8 @@ export function CohortRosterPage() {
         confirmLabel="Remove from cohort"
         variant="destructive"
         isLoading={removeMember.isPending}
-        onConfirm={() => removeTarget && removeMember.mutate(removeTarget.id, { onSuccess: () => setRemoveTarget(null) })}
-      />
+        onConfirm={() => removeTarget && removeMember.mutate(removeTarget.studentId, { onSuccess: () => setRemoveTarget(null) })}
+/>
     </div>
   );
 }

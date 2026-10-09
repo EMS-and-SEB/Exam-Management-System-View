@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2, Mail, ShieldCheck, User } from 'lucide-react';
+import { Building2, Loader2, Mail, ShieldCheck, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
@@ -45,7 +45,7 @@ function ProfileForm({
   isPending,
   onSubmit,
 }: {
-  user: { name: string; email: string; role: StaffRole };
+  user: { name: string; email: string; role: StaffRole; orgUnit?: { name: string } };
   open: boolean;
   onOpenChange: (open: boolean) => void;
   isPending: boolean;
@@ -88,7 +88,7 @@ function ProfileForm({
 
         <Field data-invalid={!!form.formState.errors.name}>
           <FieldLabel>Full Name</FieldLabel>
-          <Input {...form.register('name')} />
+          <Input className="focus-visible:ring-1 focus-visible:ring-ring/40" {...form.register('name')} />
           {form.formState.errors.name && <FieldError errors={[form.formState.errors.name]} />}
         </Field>
 
@@ -96,10 +96,22 @@ function ProfileForm({
           <FieldLabel>Email Address</FieldLabel>
           <div className="relative">
             <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input className="pl-9" type="email" {...form.register('email')} />
+            <Input className="pl-9 focus-visible:ring-1 focus-visible:ring-ring/40" type="email" {...form.register('email')} />
           </div>
           {form.formState.errors.email && <FieldError errors={[form.formState.errors.email]} />}
           <p className="text-xs text-muted-foreground">Changing your email will sign you out of other active sessions.</p>
+        </Field>
+
+        <Field>
+          <FieldLabel>Unit</FieldLabel>
+          <div className="relative">
+            <Building2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              className="pl-9 focus-visible:border-input focus-visible:ring-0"
+              value={user.orgUnit?.name ?? '—'}
+              readOnly
+            />
+          </div>
         </Field>
       </form>
     </DrawerShell>

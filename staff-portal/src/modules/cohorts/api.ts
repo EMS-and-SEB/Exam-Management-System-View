@@ -4,6 +4,7 @@ export interface Cohort {
   id: string;
   name: string;
   coordinatorId: string;
+  orgUnitId: string;
   status: 'ACTIVE' | 'ARCHIVED';
   createdAt: string;
   coordinator?: { name: string; email: string };
@@ -21,13 +22,19 @@ interface ImportResult {
   created: number;
   alreadyExisted: number;
   added: number;
+  nameMismatches: {
+    row: number;
+    studentId: string;
+    existingName: string;
+    importedName: string;
+  }[];
   errors: { row: number; reason: string }[];
 }
 
 export const cohortsApi = {
   list: () => http.get<Cohort[]>('/cohorts').then((r) => r.data),
   getOne: (id: string) => http.get<Cohort>(`/cohorts/${id}`).then((r) => r.data),
-  create: (data: { name: string; coordinatorId: string }) =>
+  create: (data: { name: string; coordinatorId: string, orgUnitId?: string }) =>
     http.post<Cohort>('/cohorts', data).then((r) => r.data),
   update: (id: string, data: { name?: string; coordinatorId?: string; status?: string }) =>
     http.patch<Cohort>(`/cohorts/${id}`, data).then((r) => r.data),

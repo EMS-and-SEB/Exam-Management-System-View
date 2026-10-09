@@ -7,29 +7,24 @@ import type { StaffRole } from '@/types/role';
 
 interface GetColumnsArgs {
   viewerRole: StaffRole;
-  onView: (course: Course) => void;
   onEdit: (course: Course) => void;
   onToggleArchive: (course: Course) => void;
 }
 
-export function getCourseColumns({ viewerRole, onView, onEdit, onToggleArchive }: GetColumnsArgs): ColumnDef<Course, unknown>[] {
-  const isAdmin = viewerRole === 'EXAM_ADMIN';
+export function getCourseColumns({ viewerRole, onEdit, onToggleArchive }: GetColumnsArgs): ColumnDef<Course, unknown>[] {
+  const isAdmin = viewerRole === 'SUPER_ADMIN' || viewerRole === 'UNIT_ADMIN';
 
   const columns: ColumnDef<Course, unknown>[] = [
     {
       accessorKey: 'name',
       header: 'Course Name',
-      cell: ({ row }) => (
-        <button
-          type="button"
-          className="font-medium text-left text-primary"
-          onClick={() => onView(row.original)}
-        >
-          {row.original.name}
-        </button>
-      ),
+      cell: ({ row }) => <span className="font-medium text-primary">{row.original.name}</span>,
     },
-    { accessorKey: 'status', header: 'Status', cell: ({ row }) => <StatusBadge status={row.original.status} /> },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => <StatusBadge status={row.original.status} />,
+    },
   ];
 
   if (isAdmin) {
@@ -43,17 +38,18 @@ export function getCourseColumns({ viewerRole, onView, onEdit, onToggleArchive }
       header: '',
       enableSorting: false,
       cell: ({ row }) => (
-        <div className="flex justify-end gap-1.5">
+        <div className="flex justify-end gap-1.5" onClick={(event) => event.stopPropagation()}>
           <Button variant="ghost" size="sm" onClick={() => onEdit(row.original)}>
             <Pencil />
           </Button>
           <Button
             variant={row.original.status === 'ARCHIVED' ? 'outline' : 'destructive'}
-            size="sm"
+            size="icon-sm"
+            aria-label={row.original.status === 'ARCHIVED' ? 'Unarchive course' : 'Archive course'}
+            title={row.original.status === 'ARCHIVED' ? 'Unarchive course' : 'Archive course'}
             onClick={() => onToggleArchive(row.original)}
           >
             {row.original.status === 'ARCHIVED' ? <ArchiveRestore /> : <Archive />}
-            {row.original.status === 'ARCHIVED' ? 'Unarchive' : 'Archive'}
           </Button>
         </div>
       ),

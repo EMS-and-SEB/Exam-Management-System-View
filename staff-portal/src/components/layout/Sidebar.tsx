@@ -5,7 +5,7 @@ import {
   SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarRail,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { navConfig } from '@/config/nav-config';
+import { getNavItems } from '@/config/nav-config';
 import { useAuthStore } from '@/store/auth.store';
 import { useLogout } from '@/modules/auth/hooks';
 import { cn } from '@/lib/utils';
@@ -18,7 +18,7 @@ export function AppSidebar() {
 
   if (!user) return null;
 
-  const items = navConfig.filter((item) => item.roles.includes(user.role));
+  const items = getNavItems(user.role);
   const isCollapsed = state === 'collapsed';
   
   return (
@@ -29,7 +29,7 @@ export function AppSidebar() {
             onClick={isCollapsed ? toggleSidebar : undefined}
             className="group/logo relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground"
           >
-            <ShieldCheck className="h-4 w-4 transition-opacity group-hover/logo:opacity-0" />
+                        <ShieldCheck className="h-4 w-4 text-green-500 transition-opacity group-hover/logo:opacity-0" />
             {isCollapsed && (
               <ChevronRight className="absolute h-4 w-4 opacity-0 transition-opacity group-hover/logo:opacity-100" />
             )}
@@ -77,17 +77,6 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t">
-        {/* <div className="flex items-center gap-2 px-2 py-2 group-data-[collapsible=icon]:justify-center">
-          <Avatar className="h-8 w-8">
-            <AvatarFallback>{initials}</AvatarFallback>
-          </Avatar>
-          <div className="flex flex-col overflow-hidden group-data-[collapsible=icon]:hidden">
-            <span className="truncate text-sm font-medium">{user.name}</span>
-            <span className="truncate text-xs text-muted-foreground">
-              {portalTitleByRole[user.role].replace(' Portal', '')}
-            </span>
-          </div>
-        </div> */}
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
