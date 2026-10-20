@@ -37,6 +37,10 @@ export function FillBlankAnswer({ question, value, onChange, disabled }: Props) 
         <Input
           key={`blank-${i}`}
           data-testid={`fill-blank-${i}`}
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          spellCheck={false}
           value={current[i] ?? ""}
           disabled={disabled}
           onChange={(e) => setBlank(i, e.target.value)}

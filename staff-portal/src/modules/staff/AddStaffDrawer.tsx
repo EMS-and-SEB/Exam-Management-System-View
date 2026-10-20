@@ -21,6 +21,7 @@ interface AddStaffDrawerProps {
 
 export function AddStaffDrawer({ open, onOpenChange }: AddStaffDrawerProps) {
   const currentUser = useAuthStore((s) => s.user);
+  const currentOrgUnitId = currentUser && currentUser.role !== 'STUDENT' ? currentUser.orgUnitId : undefined;
   const [unitMode, setUnitMode] = useState<'existing' | 'new'>('existing');
   const [role, setRole] = useState<StaffRole>(staffRoleOptions[0]?.value ?? 'INSTRUCTOR');
   const isSuperAdminRole = role === 'SUPER_ADMIN';
@@ -29,7 +30,7 @@ export function AddStaffDrawer({ open, onOpenChange }: AddStaffDrawerProps) {
   const createStaff = useCreateStaff();
   const { data: orgUnits } = useScopedOrgUnits();
   const assignableOrgUnits = orgUnits?.filter(
-    (unit) => unit.parentId !== null && unit.id !== currentUser?.orgUnitId,
+    (unit) => unit.parentId !== null && unit.id !== currentOrgUnitId,
   );
 
   const form = useForm<CreateStaffValues>({
@@ -43,7 +44,7 @@ export function AddStaffDrawer({ open, onOpenChange }: AddStaffDrawerProps) {
 
   const onSubmit = (values: CreateStaffValues) => {
     const payload: CreateStaffValues = isSuperAdminRole
-      ? { name: values.name, email: values.email, role: values.role, orgUnitId: currentUser?.orgUnitId }
+      ? { name: values.name, email: values.email, role: values.role, orgUnitId: currentOrgUnitId }
       : unitMode === 'new' && isUnitAdminRole
         ? { name: values.name, email: values.email, role: values.role, newOrgUnitName: values.newOrgUnitName }
         : { name: values.name, email: values.email, role: values.role, orgUnitId: values.orgUnitId };

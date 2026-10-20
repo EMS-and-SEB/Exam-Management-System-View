@@ -13,19 +13,19 @@ export interface NavItem {
 }
 
 export const navConfig: NavItem[] = [
-  { label: 'Dashboard', path: '/dashboard', icon: LayoutGrid, color: 'text-blue-500', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR', 'SUPER_ADMIN', 'UNIT_ADMIN'] },
-  { label: 'Staff', path: '/staff', icon: UserCog, color: 'text-indigo-500', roles: ['SUPER_ADMIN', 'UNIT_ADMIN'] },
-  { label: 'Students', path: '/students', icon: UserCog, color: 'text-cyan-500', roles: ['SUPER_ADMIN', 'UNIT_ADMIN'] },
-  { label: 'Courses', path: '/courses', icon: Users, color: 'text-emerald-500', roles: ['INSTRUCTOR', 'SUPER_ADMIN', 'UNIT_ADMIN'] },
-  { label: 'Cohorts', path: '/cohorts', icon: Users, color: 'text-emerald-500', roles: ['EXIT_EXAM_COORDINATOR', 'SUPER_ADMIN', 'UNIT_ADMIN'] },
-  { label: 'Invigilator Assignment', path: '/invigilator-assignment', icon: UserCheck, color: 'text-violet-500', roles: ['UNIT_ADMIN'] },
-  { label: 'Exams & Assessments', path: '/exams', icon: ClipboardList, color: 'text-blue-500', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR'] },
-  { label: 'Question Bank', path: '/questions', icon: BookOpen, color: 'text-amber-500', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR'] },
-  { label: 'Invigilation', path: '/invigilation', icon: Eye, color: 'text-violet-500', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR', 'INVIGILATOR'] },
-  { label: 'Grading', path: '/grading', icon: ClipboardCheck, color: 'text-teal-500', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR'] },
-  { label: 'Results', path: '/results', icon: BarChart3, color: 'text-rose-500', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR'] },
-  { label: 'Audit Log', path: '/audit', icon: ScrollText, color: 'text-slate-500', roles: ['SUPER_ADMIN'] },
-  { label: 'Retention Policy', path: '/retention-policy', icon: ShieldCheck, color: 'text-slate-500', roles: ['SUPER_ADMIN'] },
+  { label: 'Dashboard', path: '/dashboard', icon: LayoutGrid, color: 'text-primary', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR', 'SUPER_ADMIN', 'UNIT_ADMIN'] },
+  { label: 'Staff', path: '/staff', icon: UserCog, color: 'text-primary', roles: ['SUPER_ADMIN', 'UNIT_ADMIN'] },
+  { label: 'Students', path: '/students', icon: UserCog, color: 'text-primary', roles: ['SUPER_ADMIN', 'UNIT_ADMIN'] },
+  { label: 'Courses', path: '/courses', icon: Users, color: 'text-primary', roles: ['INSTRUCTOR', 'SUPER_ADMIN', 'UNIT_ADMIN'] },
+  { label: 'Cohorts', path: '/cohorts', icon: Users, color: 'text-primary', roles: ['EXIT_EXAM_COORDINATOR', 'SUPER_ADMIN', 'UNIT_ADMIN'] },
+  { label: 'Invigilator Assignment', path: '/invigilator-assignment', icon: UserCheck, color: 'text-primary', roles: ['UNIT_ADMIN'] },
+  { label: 'Exams & Assessments', path: '/exams', icon: ClipboardList, color: 'text-primary', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR'] },
+  { label: 'Question Bank', path: '/questions', icon: BookOpen, color: 'text-primary', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR'] },
+  { label: 'Invigilation', path: '/invigilation', icon: Eye, color: 'text-primary', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR', 'INVIGILATOR'] },
+  { label: 'Grading', path: '/grading', icon: ClipboardCheck, color: 'text-primary', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR'] },
+  { label: 'Results', path: '/results', icon: BarChart3, color: 'text-primary', roles: ['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR'] },
+  { label: 'Audit Log', path: '/audit', icon: ScrollText, color: 'text-primary', roles: ['SUPER_ADMIN'] },
+  { label: 'Retention Policy', path: '/retention-policy', icon: ShieldCheck, color: 'text-primary', roles: ['SUPER_ADMIN'] },
 ];
 
 const unitAdminNavOrder = ['/dashboard', '/courses', '/cohorts', '/invigilator-assignment', '/staff', '/students'];

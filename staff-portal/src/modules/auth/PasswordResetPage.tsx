@@ -91,17 +91,18 @@ export function ForgotPasswordPage() {
               <div>
                 <h1 className="text-lg font-semibold">Reset your password</h1>
                 <p className="text-sm text-muted-foreground">
-                  Enter your email to receive a reset code.
+                  Enter your staff email or student ID to receive a reset code.
                 </p>
               </div>
 
               <Field
                 data-invalid={!!requestForm.formState.errors.email}
               >
-                <FieldLabel>Email</FieldLabel>
+                <FieldLabel>Staff email or Student ID</FieldLabel>
                 <Input
-                  type="email"
-                  placeholder="Enter your email"
+                  type="text"
+                  autoComplete="username"
+                  placeholder="Staff email or UGR/1234/12"
                   {...requestForm.register('email')}
                   aria-invalid={!!requestForm.formState.errors.email}
                 />
@@ -137,10 +138,10 @@ export function ForgotPasswordPage() {
 
           {step === 'sent' && (
             <div className="text-center space-y-4">
-              <h1 className="text-lg font-semibold">Check your email</h1>
+                  <h1 className="text-lg font-semibold">Check your email</h1>
               <p className="text-sm text-muted-foreground">
                 If an account exists for <strong>{email}</strong>, a 6-digit
-                code has been sent.
+                code has been sent to its registered email address.
               </p>
               <Button
                 className="w-full"
@@ -159,7 +160,7 @@ export function ForgotPasswordPage() {
               <div>
                 <h1 className="text-lg font-semibold">Enter your code</h1>
                 <p className="text-sm text-muted-foreground">
-                  Sent to {email}
+                  If your account is eligible, a code was sent to its registered email address.
                 </p>
               </div>
 

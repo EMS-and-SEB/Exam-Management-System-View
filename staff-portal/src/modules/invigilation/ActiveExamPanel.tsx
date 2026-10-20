@@ -24,7 +24,7 @@ export function ActiveExamPanel({ exam, roster }: ActiveExamPanelProps) {
   };
 
   return (
-    <Card className="border-emerald-300 dark:border-emerald-800">
+    <Card className="border-primary/30 dark:border-primary/30">
       <CardContent className="p-5">
         <div className="flex items-start justify-between mb-3">
           <div>
@@ -50,7 +50,7 @@ export function ActiveExamPanel({ exam, roster }: ActiveExamPanelProps) {
           <div><span className="text-muted-foreground">Submitted</span> <span className="font-medium ml-1">{counts.submitted}</span></div>
           <div><span className="text-muted-foreground">Not Started</span> <span className="font-medium ml-1">{counts.notStarted}</span></div>
           {counts.incidents > 0 && (
-            <div className="text-amber-600 dark:text-amber-400 font-medium ml-auto">{counts.incidents} incidents flagged</div>
+            <div className="text-destructive dark:text-destructive font-medium ml-auto">{counts.incidents} incidents flagged</div>
           )}
         </div>
       </CardContent>

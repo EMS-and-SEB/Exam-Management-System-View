@@ -34,7 +34,7 @@ export function QuestionBankEntryPage() {
               className="h-auto justify-start gap-3 p-4 text-left"
               render={<Link to={`${basePath}/${item.id}/questions`} />}
             >
-              <BookOpen className="h-4 w-4 shrink-0 text-amber-500" />
+              <BookOpen className="h-4 w-4 shrink-0 text-destructive" />
               <span className="truncate">{item.name}</span>
             </Button>
           ))}

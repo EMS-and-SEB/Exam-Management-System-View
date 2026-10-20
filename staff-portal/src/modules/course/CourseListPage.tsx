@@ -18,6 +18,7 @@ type StatusOption = 'ALL' | 'ACTIVE' | 'ARCHIVED';
 export function CourseListPage() {
   const navigate = useNavigate();
   const role = useAuthStore((s) => s.user!.role);
+  const viewerRole = role === 'STUDENT' ? 'INSTRUCTOR' : role;
   const isSuperAdmin = role === 'SUPER_ADMIN';
   const isAdmin = isSuperAdmin || role === 'UNIT_ADMIN';
 
@@ -41,7 +42,7 @@ export function CourseListPage() {
   });
 
   const columns = getCourseColumns({
-    viewerRole: role,
+    viewerRole,
     onEdit: (course) => { setEditingCourse(course); setFormOpen(true); },
     onToggleArchive: setArchiveTarget,
   });

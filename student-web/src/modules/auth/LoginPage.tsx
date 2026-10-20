@@ -2,7 +2,7 @@ import { useForm, Controller } from "react-hook-form";
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { GraduationCap, ShieldCheck, User, AlertCircle, ArrowRight, Loader2 } from "lucide-react";
+import { ShieldCheck, User, AlertCircle, ArrowRight, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,7 +46,7 @@ export function LoginPage() {
           <CardContent className="pt-8 pb-6 px-6">
             <div className="flex flex-col items-center text-center mb-6">
               <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
-                <GraduationCap className="h-6 w-6 text-primary" />
+                <img src="/aauLogo.png" alt="Addis Ababa University" className="h-10 w-10 object-contain" />
               </div>
 
               <h1 className="text-lg font-semibold">

@@ -25,8 +25,8 @@ export function AutosaveIndicator({ status, offline, onRetry }: Props) {
       className={cn(
         "inline-flex items-center gap-1.5 text-xs",
         effective === "error" && "text-destructive",
-        effective === "offline" && "text-amber-600",
-        effective === "saved" && "text-emerald-600",
+        effective === "offline" && "text-destructive",
+        effective === "saved" && "text-primary",
         effective === "saving" && "text-muted-foreground",
       )}
     >

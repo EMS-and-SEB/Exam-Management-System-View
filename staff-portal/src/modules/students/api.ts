@@ -4,6 +4,8 @@ export interface Student {
   id: string;
   studentId: string;
   name: string;
+  email: string | null;
+  isActive: boolean;
   createdAt: string;
 }
 
@@ -53,6 +55,9 @@ export const studentsApi = {
 
   update: (id: string, data: { studentId?: string; name?: string }) =>
     http.patch<Student>(`/students/${id}`, data).then((r) => r.data),
+
+  activate: (id: string, email: string) =>
+    http.post<{ sent: boolean }>(`/students/${id}/activation`, { email }).then((r) => r.data),
 
   import: (file: File) => {
     const formData = new FormData();

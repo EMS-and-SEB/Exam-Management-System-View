@@ -25,11 +25,11 @@ export function DashboardPage() {
               </Button>
             )}
             <Button variant="outline" onClick={() => setActiveDrawer('course')}>
-              <BookOpen className="h-4 w-4 text-amber-500 dark:text-amber-400" />
+              <BookOpen className="h-4 w-4 text-destructive dark:text-destructive" />
               Create Course
             </Button>
             <Button variant="outline" onClick={() => setActiveDrawer('cohort')}>
-              <Layers className="h-4 w-4 text-violet-500 dark:text-violet-400" />
+              <Layers className="h-4 w-4 text-primary dark:text-primary" />
               Create Cohort
             </Button>
           </>

@@ -142,6 +142,28 @@ describe("answer components emit the required responseData shape", () => {
     expect(onChange).toHaveBeenLastCalledWith(["blue", "green"]);
   });
 
+  it("FILL_BLANK starts empty and disables browser autofill and text correction", () => {
+    render(
+      <Harness
+        question={{
+          ...base,
+          id: "q1",
+          type: "FILL_BLANK",
+          prompt: "Sky is {{0}}.",
+          blanks: 1,
+        }}
+        onChange={vi.fn()}
+      />,
+    );
+
+    const blank = screen.getByTestId("fill-blank-0");
+    expect(blank).toHaveValue("");
+    expect(blank).toHaveAttribute("autocomplete", "off");
+    expect(blank).toHaveAttribute("autocorrect", "off");
+    expect(blank).toHaveAttribute("autocapitalize", "off");
+    expect(blank).toHaveAttribute("spellcheck", "false");
+  });
+
   it("WORKOUT emits a free-text string", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
@@ -153,6 +175,22 @@ describe("answer components emit the required responseData shape", () => {
     );
     await user.type(screen.getByTestId("workout-answer"), "42");
     expect(onChange).toHaveBeenLastCalledWith("42");
+  });
+
+  it("WORKOUT starts empty and disables browser autofill and text correction", () => {
+    render(
+      <Harness
+        question={{ ...base, id: "q1", type: "WORKOUT", prompt: "Solve" }}
+        onChange={vi.fn()}
+      />,
+    );
+
+    const answer = screen.getByTestId("workout-answer");
+    expect(answer).toHaveValue("");
+    expect(answer).toHaveAttribute("autocomplete", "off");
+    expect(answer).toHaveAttribute("autocorrect", "off");
+    expect(answer).toHaveAttribute("autocapitalize", "off");
+    expect(answer).toHaveAttribute("spellcheck", "false");
   });
 
   /**

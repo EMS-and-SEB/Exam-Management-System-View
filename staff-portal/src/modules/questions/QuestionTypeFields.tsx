@@ -186,7 +186,7 @@ export function QuestionTypeFields({
                 <Input
                   placeholder={`Option ${index + 1}`}
                   {...multipleChoiceRegister(`options.${index}.text`)}
-                  className={isCorrect ? "border-emerald-400" : undefined}
+                  className={isCorrect ? "border-primary" : undefined}
                 />
                 <Button
                   type="button"

@@ -24,7 +24,7 @@ export function ProfileDrawer({ open, onOpenChange }: ProfileDrawerProps) {
   const user = useAuthStore((state) => state.user);
   const updateProfile = useUpdateProfile();
 
-  if (!user) return null;
+  if (!user || user.role === 'STUDENT') return null;
 
   return (
     <ProfileForm

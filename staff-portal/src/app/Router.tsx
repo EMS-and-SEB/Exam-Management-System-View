@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { LoginPage } from '@/modules/auth/LoginPage';
+import { ActivateAccountPage } from '@/modules/auth/ActivateAccountPage';
 import { ForgotPasswordPage, SetPasswordPage } from '@/modules/auth/PasswordResetPage';
 import { RequireAuth } from '@/components/guards/RequireAuth';
 import { RequireRole } from '@/components/guards/RequireRole';
@@ -22,6 +23,7 @@ import { ExamGradingPage } from '@/modules/grading/ExamGradingPage';
 import { AuditLogPage } from '@/modules/audit/AuditLogPage';
 import { RetentionPolicyPage } from '@/modules/retention-policy/RetentionPolicyPage';
 import { DashboardPage } from '@/modules/dashboard/DashboardPage';
+import { StudentDashboardPage } from '@/modules/dashboard/StudentDashboardPage';
 import { InvigilationRoute } from '@/modules/invigilation/InvigilationRoute';
 import { ResultsPage } from '@/modules/results/ResultsPage';
 import { CourseOrCohortResult } from '@/modules/results/CourseOrCohortResult';
@@ -31,12 +33,17 @@ import { InvigilatorAssignmentPage } from '@/modules/invigilator-assignment/Invi
 const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/dashboard" replace /> },
   { path: '/login', element: <LoginPage />, errorElement: <RouteErrorBoundary /> },
+  { path: '/activate-account', element: <ActivateAccountPage />, errorElement: <RouteErrorBoundary /> },
   { path: '/forgot-password', element: <ForgotPasswordPage /> },
   { path: '/set-password', element: <SetPasswordPage /> },
   {
     element: <RequireAuth />,
     errorElement: <RouteErrorBoundary />,
     children: [
+      {
+        element: <RequireRole roles={['STUDENT']} />,
+        children: [{ path: '/student-dashboard', element: <StudentDashboardPage /> }],
+      },
       { path: '/invigilation', element: <InvigilationRoute /> },
       { path: '/invigilation/:id', element: <InvigilationRoute /> },
       {

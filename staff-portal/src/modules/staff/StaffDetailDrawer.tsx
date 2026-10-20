@@ -143,7 +143,7 @@ function StaffDetailForm({ staff, onOpenChange }: { staff: StaffMember; onOpenCh
                   <Switch
                     checked={field.value}
                     onCheckedChange={field.onChange}
-                    className="data-checked:bg-blue-600 dark:data-checked:bg-blue-500"
+                    className="data-checked:bg-primary/90 dark:data-checked:bg-primary"
                   />
                 )}
               />
@@ -166,7 +166,7 @@ function StaffDetailForm({ staff, onOpenChange }: { staff: StaffMember; onOpenCh
                 key={course.id} 
                 label={course.name} 
                 type="Course" 
-                icon={<BookOpen className="h-3.5 w-3.5 text-blue-500" />}
+                icon={<BookOpen className="h-3.5 w-3.5 text-primary" />}
                 pending={unassignResource.isPending} 
                 onRemove={() => unassignResource.mutate({ staffId: staff.id, resourceId: course.id, resourceType: 'course' })} 
               />
@@ -176,7 +176,7 @@ function StaffDetailForm({ staff, onOpenChange }: { staff: StaffMember; onOpenCh
                 key={cohort.id} 
                 label={cohort.name} 
                 type="Cohort" 
-                icon={<GraduationCap className="h-3.5 w-3.5 text-emerald-500" />}
+                icon={<GraduationCap className="h-3.5 w-3.5 text-primary" />}
                 pending={unassignResource.isPending} 
                 onRemove={() => unassignResource.mutate({ staffId: staff.id, resourceId: cohort.id, resourceType: 'cohort' })} 
               />

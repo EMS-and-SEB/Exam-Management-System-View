@@ -41,7 +41,7 @@ const TYPE_LABEL = {
   WORKOUT: "Work Out",
 } as const;
 
-function PostSubmit({ summary }: { summary: SessionSummary }) {
+export function PostSubmit({ summary }: { summary: SessionSummary }) {
   const navigate = useNavigate();
   const session = useSessionStore((s) => s.session);
   const studentId = useSessionStore((s) => s.studentId);
@@ -67,13 +67,25 @@ function PostSubmit({ summary }: { summary: SessionSummary }) {
     ? `${summary.score} / ${summary.maxScore ?? "—"}`
     : "Pending review";
 
+  useEffect(() => {
+    const redirectTimer = window.setTimeout(() => {
+      useSessionStore.getState().clearSession();
+      navigate("/login");
+    }, 30_000);
+
+    return () => window.clearTimeout(redirectTimer);
+  }, [navigate]);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30">
       <Card className="w-full max-w-md">
         <CardContent className="pt-8 pb-6 px-6 flex flex-col items-center text-center">
-          <CheckCircle2 className="h-12 w-12 text-emerald-600 mb-4" />
+          <CheckCircle2 className="h-12 w-12 text-primary mb-4" />
           <h1 className="text-lg font-semibold">{title}</h1>
           <p className="text-muted-foreground mt-2 text-sm">{body}</p>
+          <p className="mt-3 text-xs text-muted-foreground" role="status">
+            You will return to the login page in 30 seconds.
+          </p>
 
           <dl className="mt-6 w-full space-y-2 rounded-lg border bg-muted/30 p-4 text-left text-sm">
             <div className="flex justify-between gap-3">
@@ -439,9 +451,9 @@ export function ExamLanding() {
                           "relative h-9 rounded-md border text-xs font-medium transition-colors",
                           isCurrent && "border-ring ring-2 ring-ring/40",
                           answered
-                            ? "border-emerald-600 bg-emerald-600 text-white hover:bg-emerald-700"
+                            ? "border-primary bg-primary text-white hover:bg-primary/90"
                             : isMarked
-                              ? "border-amber-500/70 bg-amber-500/10 text-amber-700 hover:bg-amber-500/20"
+                              ? "border-destructive/70 bg-destructive/100/10 text-destructive hover:bg-destructive/100/20"
                               : "border-border bg-muted/40 text-muted-foreground hover:bg-muted",
                         )}
                       >
@@ -449,7 +461,7 @@ export function ExamLanding() {
                         {isMarked && (
                           <span
                             aria-hidden
-                            className="absolute -top-1 -right-1 size-2 rounded-full bg-amber-500 ring-2 ring-card"
+                            className="absolute -top-1 -right-1 size-2 rounded-full bg-destructive/100 ring-2 ring-card"
                           />
                         )}
                       </button>

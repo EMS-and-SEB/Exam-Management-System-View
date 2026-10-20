@@ -30,7 +30,7 @@ export const rosterColumns: ColumnDef<RosterEntry, unknown>[] = [
     header: 'Incidents',
     cell: ({ row }) =>
       row.original.incidents.length > 0 ? (
-        <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-600 dark:text-amber-400">
+        <span className="inline-flex items-center gap-1 text-xs font-medium text-destructive dark:text-destructive">
           <AlertTriangle className="h-3 w-3" />
           {row.original.incidents.length} incident{row.original.incidents.length > 1 ? 's' : ''}
         </span>

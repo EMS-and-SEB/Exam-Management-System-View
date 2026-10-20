@@ -13,7 +13,9 @@ export function useLogin() {
       authApi.login(email, password),
     onSuccess: (data) => {
       setSession(data.jwt, data.staff);
-      navigate(data.staff.role === 'INVIGILATOR' ? '/invigilation' : '/dashboard');
+      navigate(data.staff.role === 'STUDENT'
+        ? '/student-dashboard'
+        : data.staff.role === 'INVIGILATOR' ? '/invigilation' : '/dashboard');
     },
   });
 }
@@ -34,6 +36,10 @@ export function useLogout() {
 
 export function useRequestPasswordReset() {
   return useMutation({ mutationFn: (email: string) => authApi.requestPasswordReset(email) });
+}
+
+export function useRequestStudentActivation() {
+  return useMutation({ mutationFn: (studentId: string) => authApi.requestStudentActivation(studentId) });
 }
 
 export function useVerifyPasswordReset() {

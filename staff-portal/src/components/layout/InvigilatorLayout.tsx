@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import { ShieldCheck, LogOut } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { useAuthStore } from '@/store/auth.store';
@@ -17,7 +17,7 @@ export function InvigilatorLayout({ children }: { children?: React.ReactNode }) 
       <header className="flex h-14 items-center justify-between border-b px-6 shrink-0">
         <div className="flex items-center gap-2">
           <div className="h-7 w-7 rounded-lg bg-primary text-primary-foreground flex items-center justify-center">
-            <ShieldCheck className="h-4 w-4" />
+            <img src="/aauLogo.png" alt="AAU" className="h-6 w-6 rounded-full object-contain" />
           </div>
           <span className="text-sm font-bold">EMS</span>
           <span className="text-xs text-muted-foreground border-l pl-2 ml-1">Invigilator Dashboard</span>
