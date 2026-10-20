@@ -10,6 +10,9 @@ export type Question = {
   type: QuestionType;
   prompt: string;
   points: number;
+  correctAnswerCount: number;
+  options: unknown;
+  correctAnswer: unknown;
 };
 
 interface ParentRef {

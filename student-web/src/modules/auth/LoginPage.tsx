@@ -1,4 +1,6 @@
 import { useForm, Controller } from "react-hook-form";
+import { useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { GraduationCap, ShieldCheck, User, AlertCircle, ArrowRight, Loader2 } from "lucide-react";
 
@@ -10,9 +12,27 @@ import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 
 import { loginSchema, type LoginFormValues } from "./validation/login.schema";
 import { useLogin, toLoginMessage } from "./hooks";
+import { getHandshakeToken } from "./handshake";
+import { useSessionStore } from "@/store/session.store";
 
 export function LoginPage() {
   const login = useLogin();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const sebReturnToLogin = searchParams.get("sebReturnToLogin") === "1";
+  const session = useSessionStore((state) => state.session);
+  const hasHydrated = useSessionStore((state) => state.hasHydrated);
+  const clearSession = useSessionStore((state) => state.clearSession);
+  const hasHandshakeToken = getHandshakeToken().trim().length > 0;
+
+  useEffect(() => {
+    if (sebReturnToLogin) {
+      clearSession();
+      navigate("/login", { replace: true });
+      return;
+    }
+    if (hasHydrated && session) navigate("/exam", { replace: true });
+  }, [sebReturnToLogin, clearSession, hasHydrated, session, navigate]);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -39,7 +59,10 @@ export function LoginPage() {
             </div>
 
             <form
-              onSubmit={form.handleSubmit((v) => login.mutate(v))}
+              onSubmit={form.handleSubmit((v) => {
+                if (!getHandshakeToken().trim()) return;
+                login.mutate(v);
+              })}
               className="space-y-4"
             >
               <Controller
@@ -125,10 +148,19 @@ export function LoginPage() {
                 </Alert>
               )}
 
+              {!hasHandshakeToken && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    Open this exam using EMS Safe Exam Browser to sign in. Direct browser login is not available.
+                  </AlertDescription>
+                </Alert>
+              )}
+
               <Button
                 type="submit"
                 className="w-full"
-                disabled={login.isPending}
+                disabled={login.isPending || !hasHandshakeToken}
               >
                 {login.isPending ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

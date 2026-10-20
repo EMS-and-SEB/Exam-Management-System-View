@@ -10,7 +10,6 @@ export type ExamType = "QUIZ" | "MIDTERM" | "FINAL" | "MOCK_EXIT";
 export type QuestionType =
   | "TRUE_FALSE"
   | "MULTIPLE_CHOICE"
-  | "MULTIPLE_SELECT"
   | "MATCHING"
   | "FILL_BLANK"
   | "WORKOUT";
@@ -37,6 +36,7 @@ export interface StudentExamQuestion {
   examId: string;
   sourceQuestionId: string | null;
   type: QuestionType;
+  correctAnswerCount: number;
   prompt: string;
   options: Json | null;
   points: number;
@@ -53,8 +53,11 @@ export interface StudentExam {
 /** Full response of POST /students/login. */
 export interface StudentLoginResponse {
   sessionToken: string;
+  status?: "IN_PROGRESS" | "NOT_STARTED";
   exam: StudentExam;
-  endsAt: string;
+  scheduledStart?: string;
+  serverNow?: string;
+  endsAt: string | null;
   examQuestions: StudentExamQuestion[];
   student?: { name: string; studentId: string };
 }

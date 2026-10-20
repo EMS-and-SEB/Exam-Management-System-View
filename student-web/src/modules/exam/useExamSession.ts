@@ -13,7 +13,6 @@ const TEXT_DEBOUNCE_MS = 800;
 const DISCRETE_TYPES = new Set<ExamQuestion["type"]>([
   "TRUE_FALSE",
   "MULTIPLE_CHOICE",
-  "MULTIPLE_SELECT",
   "MATCHING",
 ]);
 
@@ -26,7 +25,7 @@ const LOCKED_PROBE_MS = 10_000;
 /** Normalize a loose server question into the typed union. */
 function parseQuestion(raw: StudentExamQuestion): ExamQuestion {
   const type = raw.type;
-  if (type === "MULTIPLE_CHOICE" || type === "MULTIPLE_SELECT") {
+  if (type === "MULTIPLE_CHOICE") {
     return {
       ...raw,
       type,
@@ -159,6 +158,7 @@ export function useExamSession() {
             // Rejected for a stable reason (not accepting answers, etc.).
             // Retrying won't help; the running poll routes terminal states.
             clearRetryTimer(questionId);
+            setOffline(false);
             setSaveStatus(questionId, "error");
             return;
           }
@@ -172,6 +172,7 @@ export function useExamSession() {
               RETRY_BASE_MS * 2 ** attempt,
             );
           } else {
+            setOffline(false);
             setSaveStatus(questionId, "error");
           }
         });
@@ -208,6 +209,21 @@ export function useExamSession() {
       writeAnswer(questionId, value);
     },
     [questions, setAnswer, writeAnswer],
+  );
+
+  const retryAnswer = useCallback(
+    (questionId: string) => {
+      const pending = timers.current[questionId];
+      if (pending) {
+        clearTimeout(pending);
+        delete timers.current[questionId];
+      }
+      clearRetryTimer(questionId);
+      setOffline(false);
+      const value = useExamSessionStore.getState().answers[questionId] ?? null;
+      writeAnswer(questionId, value);
+    },
+    [writeAnswer, setOffline],
   );
 
   /**
@@ -264,6 +280,7 @@ export function useExamSession() {
     currentEndsAt: endsAt ?? session?.endsAt ?? "",
     markedForReview,
     updateAnswer,
+    retryAnswer,
     toggleMarkForReview,
     goNext,
     goPrev,

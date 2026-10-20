@@ -12,7 +12,6 @@ const baseFields = {
 
 export const questionTypeOptions = [
   { value: "MULTIPLE_CHOICE", label: "Multiple Choice" },
-  { value: "MULTIPLE_SELECT", label: "Multiple Select" },
   { value: "TRUE_FALSE", label: "True / False" },
   { value: "MATCHING", label: "Matching" },
   { value: "FILL_BLANK", label: "Fill in the Blank" },
@@ -31,29 +30,17 @@ export const questionInputSchema = z.union([
       type: z.literal("MULTIPLE_CHOICE"),
       ...baseFields,
       options: z.array(optionSchema).min(2, "At least 2 options are required."),
-      correctAnswer: z.string().min(1, "Select the correct answer."),
+      correctAnswerCount: z.number().int().min(1),
+      correctAnswer: z.array(z.string()).min(1, "Select the correct answer(s)."),
     })
-    .refine((q) => q.options.some((o) => o.id === q.correctAnswer), {
-      message: "The correct answer must match one of the options.",
+    .refine((q) => q.correctAnswerCount <= q.options.length && q.correctAnswer.length === q.correctAnswerCount, {
+      message: "Select exactly the configured number of correct answers.",
+      path: ["correctAnswer"],
+    })
+    .refine((q) => new Set(q.correctAnswer).size === q.correctAnswer.length && q.correctAnswer.every((id) => q.options.some((o) => o.id === id)), {
+      message: "All correct answers must be unique options.",
       path: ["correctAnswer"],
     }),
-
-  z
-    .object({
-      type: z.literal("MULTIPLE_SELECT"),
-      ...baseFields,
-      options: z.array(optionSchema).min(2, "At least 2 options are required."),
-      correctAnswer: z
-        .array(z.string())
-        .min(1, "Select at least one correct answer."),
-    })
-    .refine(
-      (q) => q.correctAnswer.every((id) => q.options.some((o) => o.id === id)),
-      {
-        message: "All correct answers must match given options.",
-        path: ["correctAnswer"],
-      },
-    ),
 
   z
     .object({

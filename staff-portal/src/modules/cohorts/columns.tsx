@@ -39,9 +39,11 @@ export function getCohortColumns({ viewerRole, onEdit, onToggleArchive }: GetCol
       enableSorting: false,
       cell: ({ row }) => (
         <div className="flex justify-end gap-1.5" onClick={(event) => event.stopPropagation()}>
-          <Button variant="ghost" size="sm" onClick={() => onEdit(row.original)}>
-            <Pencil />
-          </Button>
+          {row.original.status !== 'ARCHIVED' && (
+            <Button variant="ghost" size="sm" onClick={() => onEdit(row.original)}>
+              <Pencil />
+            </Button>
+          )}
           <Button
             variant={row.original.status === 'ARCHIVED' ? 'outline' : 'destructive'}
             size="icon-sm"

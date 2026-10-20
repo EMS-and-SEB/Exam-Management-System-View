@@ -29,6 +29,7 @@ export function QuestionBankEntryPage() {
           {items.map((item) => (
             <Button
               key={item.id}
+              nativeButton={false}
               variant="outline"
               className="h-auto justify-start gap-3 p-4 text-left"
               render={<Link to={`${basePath}/${item.id}/questions`} />}

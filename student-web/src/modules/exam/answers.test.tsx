@@ -5,7 +5,7 @@ import userEvent from "@testing-library/user-event";
 import { QuestionRenderer } from "./components/QuestionRenderer";
 import type { AnswerValue, ExamQuestion } from "./types";
 
-const base = { examId: "e1", sourceQuestionId: null, points: 1, order: 1 };
+const base = { examId: "e1", sourceQuestionId: null, points: 1, order: 1, correctAnswerCount: 1, options: null };
 
 /** Controlled harness: feeds the emitted value back so controlled inputs work. */
 function Harness({
@@ -68,7 +68,7 @@ describe("answer components emit the required responseData shape", () => {
     expect(onChange).toHaveBeenLastCalledWith("opt-a");
   });
 
-  it("MULTIPLE_SELECT emits an array of option ids", async () => {
+  it("MULTIPLE_CHOICE emits an array when more than one correct answer is configured", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
     render(
@@ -76,7 +76,8 @@ describe("answer components emit the required responseData shape", () => {
         question={{
           ...base,
           id: "q1",
-          type: "MULTIPLE_SELECT",
+          type: "MULTIPLE_CHOICE",
+          correctAnswerCount: 2,
           prompt: "p",
           options: [
             { id: "opt-a", text: "A" },
@@ -162,7 +163,7 @@ describe("answer components emit the required responseData shape", () => {
    */
   it("QuestionRenderer emits onChange as (value, questionId)", async () => {
     const user = userEvent.setup();
-    const onChange = vi.fn<[unknown, string]>();
+    const onChange = vi.fn<(value: AnswerValue, questionId: string) => void>();
 
     render(
       <QuestionRenderer

@@ -19,7 +19,7 @@ import {
   ShieldAlert,
   User,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AutosaveIndicator } from "./components/AutosaveIndicator";
 import { QuestionRenderer } from "./components/QuestionRenderer";
@@ -36,7 +36,6 @@ import { isEmptyAnswer, useExamSession } from "./useExamSession";
 const TYPE_LABEL = {
   TRUE_FALSE: "True / False",
   MULTIPLE_CHOICE: "Multiple Choice",
-  MULTIPLE_SELECT: "Multiple Select",
   MATCHING: "Matching",
   FILL_BLANK: "Fill in the Blank",
   WORKOUT: "Work Out",
@@ -47,6 +46,9 @@ function PostSubmit({ summary }: { summary: SessionSummary }) {
   const session = useSessionStore((s) => s.session);
   const studentId = useSessionStore((s) => s.studentId);
   const hasScore = typeof summary.score === "number";
+  const isSebClient = Boolean((window as Window & {
+    chrome?: { webview?: unknown };
+  }).chrome?.webview);
 
   const title =
     summary.status === "EXPIRED"
@@ -56,7 +58,7 @@ function PostSubmit({ summary }: { summary: SessionSummary }) {
         : "Exam submitted";
   const body =
     summary.status === "FORCE_SUBMITTED"
-      ? "Your session was ended by an invigilator."
+      ? "Your session was ended by an exam official."
       : summary.status === "EXPIRED"
         ? "The time limit was reached and your answers were submitted automatically."
         : "Your submission was received.";
@@ -88,16 +90,18 @@ function PostSubmit({ summary }: { summary: SessionSummary }) {
             </div>
           </dl>
 
-          <Button
-            variant="outline"
-            className="mt-6 w-full"
-            onClick={() => {
-              useSessionStore.getState().clearSession();
-              navigate("/login");
-            }}
-          >
-            <LogOut className="h-4 w-4" /> Return to login
-          </Button>
+          {!isSebClient && (
+            <Button
+              variant="outline"
+              className="mt-6 w-full"
+              onClick={() => {
+                useSessionStore.getState().clearSession();
+                navigate("/login");
+              }}
+            >
+              <LogOut className="h-4 w-4" /> Return to login
+            </Button>
+          )}
         </CardContent>
       </Card>
     </div>
@@ -119,6 +123,99 @@ function LockedBanner() {
   );
 }
 
+export const WaitingForExam = memo(function WaitingForExam({
+  title,
+  scheduledStart,
+  serverNow,
+}: {
+  title: string;
+  scheduledStart: string;
+  serverNow: string;
+}) {
+  const targetMs = Date.parse(scheduledStart);
+  const serverNowMs = Date.parse(serverNow);
+  const clock = useRef<{ serverMs: number; performanceMs: number } | null>(null);
+  const target = useRef(targetMs);
+  const [remainingSeconds, setRemainingSeconds] = useState(() =>
+    Math.max(0, Math.ceil((targetMs - serverNowMs) / 1000)),
+  );
+
+  // Re-anchor only when the server supplies a new timestamp. Never move the
+  // estimated server clock backward if a delayed poll returns an older value.
+  useEffect(() => {
+    const nowPerformance = performance.now();
+    if (!clock.current) {
+      clock.current = { serverMs: serverNowMs, performanceMs: nowPerformance };
+      return;
+    }
+    const estimatedServerNow = clock.current!.serverMs + (nowPerformance - clock.current!.performanceMs);
+    clock.current = {
+      serverMs: Math.max(estimatedServerNow, serverNowMs),
+      performanceMs: nowPerformance,
+    };
+  }, [serverNowMs]);
+
+  // A changed scheduled start is an explicit authoritative schedule update.
+  // Recalculate once for that new target; ordinary polling does not alter it.
+  useEffect(() => {
+    if (target.current === targetMs) return;
+    target.current = targetMs;
+    const nowPerformance = performance.now();
+    if (!clock.current) return;
+    const estimatedServerNow = clock.current!.serverMs + (nowPerformance - clock.current!.performanceMs);
+    setRemainingSeconds(Math.max(0, Math.ceil((targetMs - estimatedServerNow) / 1000)));
+  }, [targetMs]);
+
+  useEffect(() => {
+    if (!clock.current) return;
+    const nowPerformance = performance.now();
+    const estimatedServerNow = clock.current!.serverMs + (nowPerformance - clock.current!.performanceMs);
+    if (target.current <= estimatedServerNow) {
+      setRemainingSeconds(0);
+      return;
+    }
+    const timer = window.setInterval(() => {
+      const nowPerformance = performance.now();
+      const estimatedServerNow = clock.current!.serverMs + (nowPerformance - clock.current!.performanceMs);
+      const next = Math.max(0, Math.ceil((target.current - estimatedServerNow) / 1000));
+      if (next === 0) {
+        window.clearInterval(timer);
+        setRemainingSeconds(0);
+      } else {
+        setRemainingSeconds((previous) => Math.min(previous, next));
+      }
+    }, 200);
+    return () => window.clearInterval(timer);
+  }, [targetMs]);
+
+  const hours = Math.floor(remainingSeconds / 3600);
+  const minutes = Math.floor((remainingSeconds % 3600) / 60);
+  const seconds = remainingSeconds % 60;
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
+      <Card className="w-full max-w-lg">
+        <CardHeader className="text-center">
+          <CardDescription>Exam waiting room</CardDescription>
+          <CardTitle>{title}</CardTitle>
+          <CardDescription>
+            Your eligibility is confirmed. Questions will become available when the scheduled exam starts.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4 text-center">
+          <p className="text-sm text-muted-foreground">
+            Scheduled start: {new Date(scheduledStart).toLocaleString()}
+          </p>
+          <p aria-live="polite" data-testid="exam-countdown" className="font-mono text-4xl font-semibold">
+            {String(hours).padStart(2, "0")}:{String(minutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")}
+          </p>
+          <p className="text-xs text-muted-foreground">This page will open the exam automatically.</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+});
+
 export function ExamLanding() {
   const session = useSessionStore((s) => s.session);
   const studentId = useSessionStore((s) => s.studentId);
@@ -130,6 +227,15 @@ export function ExamLanding() {
   const navigate = useNavigate();
 
   const sessionId = session?.sessionToken ?? "";
+
+  useEffect(() => {
+    if (!session) return;
+    const webview = (window as Window & {
+      chrome?: { webview?: { postMessage: (message: unknown) => void } };
+    }).chrome?.webview;
+    webview?.postMessage({ type: "exam-session", sessionToken: session.sessionToken });
+  }, [session]);
+
   const poll = useExamPolling({ enabled: Boolean(sessionId) && !exam.summary });
   const invalidatePoll = useInvalidatePoll();
 
@@ -155,6 +261,15 @@ export function ExamLanding() {
   }
   if (!session) return null;
   if (exam.summary) return <PostSubmit summary={exam.summary} />;
+  if (session.status === "NOT_STARTED" && session.scheduledStart && session.serverNow) {
+    return (
+      <WaitingForExam
+        title={session.exam.title}
+        scheduledStart={session.scheduledStart}
+        serverNow={session.serverNow}
+      />
+    );
+  }
 
   const q = exam.current;
   const value = q ? (exam.answers[q.id] ?? null) : null;
@@ -213,6 +328,7 @@ export function ExamLanding() {
                       <AutosaveIndicator
                         status={exam.currentStatus}
                         offline={exam.offline}
+                        onRetry={q && !locked ? () => exam.retryAnswer(q.id) : undefined}
                       />
                     </div>
                     <CardDescription className="capitalize">

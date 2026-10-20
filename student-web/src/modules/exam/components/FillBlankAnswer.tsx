@@ -17,7 +17,7 @@ export function FillBlankAnswer({ question, value, onChange, disabled }: Props) 
   );
 
   const blankCount = parts.length - 1;
-  const current = value ?? Array.from({ length: blankCount }, () => "");
+  const current = value?.map((answer) => answer ?? "") ?? Array.from({ length: blankCount }, () => "");
 
   const setBlank = (i: number, text: string) => {
     const next = [...current];

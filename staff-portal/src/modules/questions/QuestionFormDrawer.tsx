@@ -32,8 +32,7 @@ export interface QuestionEditorRef {
 function defaultsForType(type: QuestionType): QuestionInput {
   switch (type) {
     case 'TRUE_FALSE': return { type, prompt: '', points: 1, correctAnswer: true };
-    case 'MULTIPLE_CHOICE': return { type, prompt: '', points: 1, options: [{ id: crypto.randomUUID(), text: '' }, { id: crypto.randomUUID(), text: '' }], correctAnswer: '' };
-    case 'MULTIPLE_SELECT': return { type, prompt: '', points: 1, options: [{ id: crypto.randomUUID(), text: '' }, { id: crypto.randomUUID(), text: '' }], correctAnswer: [] };
+    case 'MULTIPLE_CHOICE': return { type, prompt: '', points: 1, options: [{ id: crypto.randomUUID(), text: '' }, { id: crypto.randomUUID(), text: '' }], correctAnswerCount: 1, correctAnswer: [] };
     case 'MATCHING': return { type, prompt: '', points: 1, options: { left: [], right: [] }, correctAnswer: [] };
     case 'FILL_BLANK': return { type, prompt: '', points: 1, correctAnswer: [''] };
     case 'WORKOUT': return { type, prompt: '', points: 1 };
@@ -91,22 +90,24 @@ const QuestionEditor = forwardRef<QuestionEditorRef, { type: QuestionType; initi
 );
 
 export function QuestionFormDrawer({ open, onOpenChange, parent, question }: QuestionFormDrawerProps) {
+  return (
+    <QuestionFormDrawerContent
+      key={`${open}:${question?.id ?? 'new'}`}
+      open={open}
+      onOpenChange={onOpenChange}
+      parent={parent}
+      question={question}
+    />
+  );
+}
+
+function QuestionFormDrawerContent({ open, onOpenChange, parent, question }: QuestionFormDrawerProps) {
   const isEdit = !!question;
   const createQuestions = useCreateQuestions(parent);
   const updateQuestion = useUpdateQuestion(parent);
   const [selectedType, setSelectedType] = useState<QuestionType>(question?.type as QuestionType ?? 'MULTIPLE_CHOICE');
   const [questionKeys, setQuestionKeys] = useState([0]);
   const editorRefs = useRef<Record<number, QuestionEditorRef | null>>({});
-
-  useEffect(() => {
-    if (question) {
-      setSelectedType(question.type as QuestionType);
-      setQuestionKeys([0]);
-    } else if (open) {
-      setSelectedType('MULTIPLE_CHOICE');
-      setQuestionKeys([0]);
-    }
-  }, [question, open]);
 
   const isPending = createQuestions.isPending || updateQuestion.isPending;
   const editorValue = question ? question as QuestionInput : undefined;

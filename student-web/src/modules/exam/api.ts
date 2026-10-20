@@ -4,11 +4,12 @@ import type {
   ExamQuestion,
   SaveAnswerRequest,
   SessionPollLive,
+  SessionPollResponse,
   SessionSummary,
 } from "./types";
 
 /** GET /sessions/:id — reconcile live questions and detect a terminal status. */
-function getSession(sessionId: string): Promise<SessionPollLive | SessionSummary> {
+function getSession(sessionId: string): Promise<SessionPollResponse> {
   return http.get(`/sessions/${sessionId}`).then((r) => r.data);
 }
 
@@ -32,13 +33,17 @@ export const examApi = {
 };
 
 export function isPollLive(
-  body: SessionPollLive | SessionSummary,
+  body: SessionPollResponse,
 ): body is SessionPollLive {
-  return "questions" in body;
+  return body.status === "IN_PROGRESS" && "questions" in body;
+}
+
+export function isPollWaiting(body: SessionPollResponse): body is Extract<SessionPollResponse, { status: "NOT_STARTED" }> {
+  return body.status === "NOT_STARTED" && "scheduledStart" in body;
 }
 
 export function isPollSummary(
-  body: SessionPollLive | SessionSummary,
+  body: SessionPollResponse,
 ): body is SessionSummary {
   return "submittedAt" in body;
 }

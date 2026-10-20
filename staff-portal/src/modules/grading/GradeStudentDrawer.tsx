@@ -62,10 +62,10 @@ function SubmittedAnswer({ answer }: { answer: AnswerDetail }) {
     );
   }
 
-  if ((answer.type === 'MULTIPLE_SELECT' || answer.type === 'MULTIPLE_CHOICE') && Array.isArray(options)) {
+  if (answer.type === 'MULTIPLE_CHOICE' && Array.isArray(options)) {
     const optionById = new Map(options.map((option) => [option.id, option.text]));
-    const selectedIds = answer.type === 'MULTIPLE_SELECT'
-      ? Array.isArray(answer.responseData) ? answer.responseData as string[] : []
+    const selectedIds = Array.isArray(answer.responseData)
+      ? answer.responseData as string[]
       : typeof answer.responseData === 'string' ? [answer.responseData] : [];
     const correctIds = new Set(
       Array.isArray(answer.correctAnswer)
