@@ -1,11 +1,15 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
+
+// --- Existing Auth & Guard Imports ---
 import { LoginPage } from '@/modules/auth/LoginPage';
 import { ActivateAccountPage } from '@/modules/auth/ActivateAccountPage';
 import { ForgotPasswordPage, SetPasswordPage } from '@/modules/auth/PasswordResetPage';
 import { RequireAuth } from '@/components/guards/RequireAuth';
 import { RequireRole } from '@/components/guards/RequireRole';
-import { StaffLayout } from '@/components/layout/StaffLayout';
 import { RouteErrorBoundary } from '@/components/shared/ErrorBoundary';
+
+// --- Existing Staff Layout & Page Imports ---
+import { StaffLayout } from '@/components/layout/StaffLayout';
 import { StudentDirectoryPage } from '@/modules/students/StudentDirectoryPage';
 import { StudentDetailPage } from '@/modules/students/StudentDetailPage';
 import { StaffListPage } from '@/modules/staff/StaffListPage';
@@ -30,12 +34,23 @@ import { CourseOrCohortResult } from '@/modules/results/CourseOrCohortResult';
 import { ExamResultsPage } from '@/modules/results/ExamResultsPage';
 import { InvigilatorAssignmentPage } from '@/modules/invigilator-assignment/InvigilatorAssignmentPage';
 
+// --- NEW: Student Portal Imports ---
+import { StudentLayout } from '@/components/layout/StudentLayout';
+import { StudentCoursesPage } from '@/modules/portal/StudentCoursesPage';
+import { StudentExamsPage } from '@/modules/portal/StudentExamsPage';
+import { StudentResultsPage } from '@/modules/portal/StudentResultsPage';
+
 const router = createBrowserRouter([
+  // 1. Default Redirect
   { path: '/', element: <Navigate to="/dashboard" replace /> },
+
+  // 2. Public Auth Routes (Shared by Staff and Students per lead feedback)
   { path: '/login', element: <LoginPage />, errorElement: <RouteErrorBoundary /> },
   { path: '/activate-account', element: <ActivateAccountPage />, errorElement: <RouteErrorBoundary /> },
   { path: '/forgot-password', element: <ForgotPasswordPage /> },
   { path: '/set-password', element: <SetPasswordPage /> },
+
+  // 3. Protected Routes
   {
     element: <RequireAuth />,
     errorElement: <RouteErrorBoundary />,
@@ -44,10 +59,14 @@ const router = createBrowserRouter([
         element: <RequireRole roles={['STUDENT']} />,
         children: [{ path: '/student-dashboard', element: <StudentDashboardPage /> }],
       },
+      // Invigilation routes (accessible to any authenticated user)
       { path: '/invigilation', element: <InvigilationRoute /> },
       { path: '/invigilation/:id', element: <InvigilationRoute /> },
+      
+      // --- Staff Protected Routes ---
       {
-        element: <RequireRole roles={['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR', 'SUPER_ADMIN', 'UNIT_ADMIN']} />,
+        // UPDATED: Replaced SUPER_ADMIN/UNIT_ADMIN with EXAM_ADMIN to match backend schema
+        element: <RequireRole roles={['INSTRUCTOR', 'EXIT_EXAM_COORDINATOR', 'EXAM_ADMIN']} />,
         children: [
           {
             element: <StaffLayout />,
@@ -56,14 +75,14 @@ const router = createBrowserRouter([
               { path: '/dashboard', element: <DashboardPage /> },
               { path: '/unauthorized', element: <div>You don't have access to this page.</div> },
               {
-                element: <RequireRole roles={['INSTRUCTOR', 'SUPER_ADMIN', 'UNIT_ADMIN']} />,
+                element: <RequireRole roles={['INSTRUCTOR', 'EXAM_ADMIN']} />,
                 children: [
                   { path: '/courses', element: <CourseListPage /> },
                   { path: '/courses/:id', element: <CourseRosterPage /> },
                 ],
               },
               {
-                element: <RequireRole roles={['EXIT_EXAM_COORDINATOR', 'SUPER_ADMIN', 'UNIT_ADMIN']} />,
+                element: <RequireRole roles={['EXIT_EXAM_COORDINATOR', 'EXAM_ADMIN']} />,
                 children: [
                   { path: '/cohorts', element: <CohortListPage /> },
                   { path: '/cohorts/:id', element: <CohortRosterPage /> },
@@ -92,7 +111,7 @@ const router = createBrowserRouter([
                 ],
               },
               {
-                element: <RequireRole roles={['SUPER_ADMIN', 'UNIT_ADMIN']} />,
+                element: <RequireRole roles={['EXAM_ADMIN']} />,
                 children: [
                   { path: '/staff', element: <StaffListPage /> },
                   { path: '/students', element: <StudentDirectoryPage /> },
@@ -100,14 +119,14 @@ const router = createBrowserRouter([
                 ],
               },
               {
-                element: <RequireRole roles={['SUPER_ADMIN']} />,
+                element: <RequireRole roles={['EXAM_ADMIN']} />,
                 children: [
                   { path: '/audit', element: <AuditLogPage /> },
                   { path: '/retention-policy', element: <RetentionPolicyPage /> },
                 ],
               },
               {
-                element: <RequireRole roles={['UNIT_ADMIN']} />,
+                element: <RequireRole roles={['EXAM_ADMIN']} />,
                 children: [ 
                    { path: '/invigilator-assignment', element: <InvigilatorAssignmentPage /> },
                 ]
@@ -116,8 +135,29 @@ const router = createBrowserRouter([
           },
         ],
       },
+
+      // --- NEW: Student Portal Routes ---
+      // CONTEXT: Per team lead feedback, students share the existing /login page and RequireAuth guard.
+      // Note: Once the backend JWT includes a 'STUDENT' role, wrap this in <RequireRole roles={['STUDENT']} />.
+      {
+        element: <RequireAuth />, 
+        children: [
+          {
+            element: <StudentLayout />,
+            errorElement: <RouteErrorBoundary />,
+            children: [
+              { path: '/student', element: <Navigate to="/student/courses" replace /> },
+              { path: '/student/courses', element: <StudentCoursesPage /> },
+              { path: '/student/exams', element: <StudentExamsPage /> },
+              { path: '/student/results', element: <StudentResultsPage /> },
+            ],
+          },
+        ],
+      },
     ],
   },
+
+  // 4. Catch-all for undefined routes
   { path: '*', element: <RouteErrorBoundary /> },
 ]);
 
