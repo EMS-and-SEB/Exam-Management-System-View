@@ -8,7 +8,7 @@ import type { LoginFormValues } from "./validation/login.schema";
 import type { StudentLoginResponse } from "./types";
 
 export function useLogin() {
-  const setSession = useSessionStore((s) => s.setSession);
+  const setSession = useSessionStore((s) => s.session ? s.setSession : s.setSession);
   const setStudentId = useSessionStore((s) => s.setStudentId);
   const setHasHydrated = useSessionStore((s) => s.setHasHydrated);
   const navigate = useNavigate();
@@ -25,7 +25,11 @@ export function useLogin() {
       setSession(session);
       setStudentId(values.studentId);
       setHasHydrated(true);
-      navigate("/exam");
+      if (session.endsAt && session.examQuestions && session.examQuestions.length > 0) {
+        navigate("/exam");
+      } else {
+        navigate("/waiting");
+      }
     },
   });
 }
