@@ -38,7 +38,7 @@ export function QuestionRenderer({ question, value, onChange, disabled }: Props)
       return (
         <MultipleSelectAnswer
           question={question}
-          value={Array.isArray(value) ? value : []}
+          value={Array.isArray(value) ? (value as string[]) : []}
           disabled={disabled}
           onChange={(v) => onChange(v, question.id)}
         />
@@ -47,7 +47,7 @@ export function QuestionRenderer({ question, value, onChange, disabled }: Props)
       return (
         <MatchingAnswer
           question={question}
-          value={Array.isArray(value) ? value : []}
+          value={Array.isArray(value) ? (value as { leftId: string; rightId: string }[]) : []}
           disabled={disabled}
           onChange={(v) => onChange(v, question.id)}
         />
@@ -56,7 +56,7 @@ export function QuestionRenderer({ question, value, onChange, disabled }: Props)
       return (
         <FillBlankAnswer
           question={question}
-          value={Array.isArray(value) ? value : null}
+          value={Array.isArray(value) ? (value as string[]) : null}
           disabled={disabled}
           onChange={(v) => onChange(v, question.id)}
         />

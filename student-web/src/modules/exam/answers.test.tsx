@@ -5,7 +5,7 @@ import userEvent from "@testing-library/user-event";
 import { QuestionRenderer } from "./components/QuestionRenderer";
 import type { AnswerValue, ExamQuestion } from "./types";
 
-const base = { examId: "e1", sourceQuestionId: null, points: 1, order: 1 };
+const base = { examId: "e1", sourceQuestionId: null, options: null, points: 1, order: 1 };
 
 /** Controlled harness: feeds the emitted value back so controlled inputs work. */
 function Harness({
@@ -162,7 +162,7 @@ describe("answer components emit the required responseData shape", () => {
    */
   it("QuestionRenderer emits onChange as (value, questionId)", async () => {
     const user = userEvent.setup();
-    const onChange = vi.fn<[unknown, string]>();
+    const onChange = vi.fn<(value: unknown, questionId: string) => void>();
 
     render(
       <QuestionRenderer

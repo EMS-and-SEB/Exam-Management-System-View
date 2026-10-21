@@ -19,16 +19,10 @@
 import type { Json } from "@/modules/auth/types";
 
 /** One selectable option for MULTIPLE_CHOICE / MULTIPLE_SELECT. */
-export interface Option {
-  id: string;
-  text: string;
-}
+export type Option = { id: string; text: string; };
 
 /** MATCHING options: a list of left items and the pool of right items. */
-export interface MatchingOptions {
-  left: Option[];
-  right: Option[];
-}
+export type MatchingOptions = { left: Option[]; right: Option[]; };
 
 /** Server-sent question; `correctAnswer` is stripped before it reaches us. */
 export interface BaseQuestion {

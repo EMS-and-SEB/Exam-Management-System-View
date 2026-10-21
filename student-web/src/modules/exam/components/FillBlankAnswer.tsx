@@ -4,7 +4,7 @@ import type { FillBlankQuestion } from "../types";
 
 interface Props {
   question: FillBlankQuestion;
-  value: (string | null)[] | null;
+  value: string[] | null;
   onChange: (value: string[]) => void;
   disabled?: boolean;
 }
