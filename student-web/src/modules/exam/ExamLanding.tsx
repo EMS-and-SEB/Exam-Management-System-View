@@ -183,16 +183,20 @@ export function ExamLanding() {
                     onChange={(value, qid) => exam.updateAnswer(qid, value)}
                     disabled={locked}
                   />
-                ) : (
+                ) : q ? (
                   <>
                     <p className="text-sm font-medium leading-6 text-foreground/90">{q?.prompt}</p>
                     <QuestionRenderer
-                      question={q!}
+                      question={q}
                       value={value}
                       onChange={(value, qid) => exam.updateAnswer(qid, value)}
                       disabled={locked}
                     />
                   </>
+                ) : (
+                  <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+                    Loading question…
+                  </div>
                 )}
               </CardContent>
               <CardContent className="space-y-4">
