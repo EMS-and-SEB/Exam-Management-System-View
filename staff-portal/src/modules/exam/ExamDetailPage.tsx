@@ -26,7 +26,7 @@ export function ExamDetailPage() {
   const { data: examQuestions } = useExamQuestions(examId);
   const attachQuestions = useAttachQuestions(examId);
   const detachQuestion = useDetachQuestion(examId);
-  const assignInvigilator = useAssignInvigilator(examId);
+  const assignInvigilator = useAssignInvigilator();
   const releaseExam = useReleaseExam(examId);
   const closeExam = useCloseExam(examId);
 
@@ -128,7 +128,7 @@ export function ExamDetailPage() {
                   <button
                     key={staff.id}
                     type="button"
-                    onClick={() => assignInvigilator.mutate(staff.id)}
+                    onClick={() => assignInvigilator.mutate({ examId, invigilatorId: staff.id })}
                     className="w-full text-left p-2 text-sm rounded-lg border hover:bg-muted/50"
                   >
                     {staff.name} <span className="text-muted-foreground">— {staff.email}</span>

@@ -23,7 +23,7 @@ type MatchingFieldArrayValues = {
   options: MatchingOptions;
   correctAnswer: Pair[];
 };
-type ErrorValues = { correctAnswer: string };
+type ErrorValues = { correctAnswer: string; options: { text: string }[] };
 
 interface QuestionTypeFieldsProps {
   type: QuestionType;
@@ -46,6 +46,10 @@ export function QuestionTypeFields({
     control,
     name: "correctAnswer",
   }) as boolean | string | string[] | Pair[] | undefined;
+  const correctAnswerCount = useWatch({
+    control,
+    name: "correctAnswerCount",
+  }) as number | undefined;
 
   const leftOptions = useWatch({
     control,
@@ -92,6 +96,7 @@ export function QuestionTypeFields({
   >;
 
   const correctAnswerError = (errors as FieldErrors<ErrorValues>).correctAnswer;
+  const optionErrors = (errors as FieldErrors<ErrorValues>).options;
   const multipleChoiceRegister =
     control.register as unknown as UseFormRegister<FieldArrayValues>;
   const matchingRegister =
@@ -120,45 +125,49 @@ export function QuestionTypeFields({
     );
   }
 
-  if (type === "MULTIPLE_CHOICE" || type === "MULTIPLE_SELECT") {
+  if (type === "MULTIPLE_CHOICE") {
     const { fields, append, remove } = multipleChoiceOptions;
-    const isMulti = type === "MULTIPLE_SELECT";
+    const answerCount = Math.max(1, correctAnswerCount ?? 1);
+    const selectedAnswers = Array.isArray(correctAnswer)
+      ? correctAnswer.filter((value): value is string => typeof value === "string")
+      : [];
+    const isMulti = answerCount > 1;
 
     const toggleCorrect = (optionId: string) => {
-      if (isMulti) {
-        const current =
-          Array.isArray(correctAnswer) &&
-          correctAnswer.every(
-            (value): value is string => typeof value === "string",
-          )
-            ? correctAnswer
-            : [];
-
-        const next = current.includes(optionId)
-          ? current.filter((id) => id !== optionId)
-          : [...current, optionId];
-
-        setValue("correctAnswer", next);
-      } else {
-        setValue("correctAnswer", optionId);
-      }
+      const next = selectedAnswers.includes(optionId)
+        ? selectedAnswers.filter((id) => id !== optionId)
+        : selectedAnswers.length < answerCount
+          ? [...selectedAnswers, optionId]
+          : selectedAnswers;
+      setValue("correctAnswer", next);
     };
 
     return (
       <Field>
         <FieldLabel>
-          Answer Choices —{" "}
-          {isMulti ? "check all correct" : "select the correct one"}
+          Number of correct answers
+        </FieldLabel>
+        <select
+          aria-label="Number of correct answers"
+          className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+          value={Math.min(answerCount, fields.length)}
+          onChange={(event) => {
+            const count = Number(event.target.value);
+            setValue("correctAnswerCount", count);
+            setValue("correctAnswer", selectedAnswers.slice(0, count));
+          }}
+        >
+          {fields.map((_, index) => <option key={index} value={index + 1}>{index + 1}</option>)}
+        </select>
+        <FieldLabel className="mt-3">
+          {isMulti ? "Select all correct answers" : "Select the correct answer"}
         </FieldLabel>
         <div className="space-y-2">
           {fields.map((field, index) => {
             const optionId = Array.isArray(optionValues)
               ? (optionValues[index]?.id ?? "")
               : "";
-            const isCorrect = isMulti
-              ? Array.isArray(correctAnswer) &&
-                correctAnswer.some((value) => value === optionId)
-              : correctAnswer === optionId;
+            const isCorrect = selectedAnswers.includes(optionId);
             return (
               <div key={field.id} className="flex items-center gap-2">
                 {isMulti ? (
@@ -177,14 +186,14 @@ export function QuestionTypeFields({
                 <Input
                   placeholder={`Option ${index + 1}`}
                   {...multipleChoiceRegister(`options.${index}.text`)}
-                  className={isCorrect ? "border-emerald-400" : undefined}
+                  className={isCorrect ? "border-primary" : undefined}
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
                   onClick={() => remove(index)}
-                  disabled={fields.length <= 2}
+                  disabled={fields.length <= Math.max(2, answerCount)}
                 >
                   <Trash2 className="h-4 w-4 text-muted-foreground" />
                 </Button>
@@ -192,6 +201,10 @@ export function QuestionTypeFields({
             );
           })}
         </div>
+        {Array.isArray(optionErrors) &&
+          optionErrors.some((optionError) => Boolean(optionError?.text)) && (
+            <FieldError>Fill in all the options before creating the question.</FieldError>
+          )}
         <Button
           type="button"
           variant="outline"

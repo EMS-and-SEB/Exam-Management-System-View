@@ -56,17 +56,17 @@ export function ImportStudentsDrawer({ open, onOpenChange }: ImportStudentsDrawe
 
         {importStudents.isSuccess && (
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm text-emerald-600">
+            <div className="flex items-center gap-2 text-sm text-primary">
               <CheckCircle2 className="h-4 w-4" />
               {importStudents.data.created} created, {importStudents.data.alreadyExisted} already existed.
             </div>
             {importStudents.data.nameMismatches.length > 0 && (
-              <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 space-y-1 dark:bg-amber-950 dark:border-amber-900">
-                <div className="flex items-center gap-2 text-sm font-medium text-amber-700 dark:text-amber-400">
+              <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-3 space-y-1 dark:bg-destructive/20 dark:border-destructive/30">
+                <div className="flex items-center gap-2 text-sm font-medium text-destructive dark:text-destructive">
                   <AlertTriangle className="h-4 w-4" />
                   Name mismatches
                 </div>
-                <ul className="text-xs text-amber-700 dark:text-amber-400 space-y-0.5">
+                <ul className="text-xs text-destructive dark:text-destructive space-y-0.5">
                   {importStudents.data.nameMismatches.map((mismatch) => (
                     <li key={`${mismatch.row}-${mismatch.studentId}`}>
                       Row {mismatch.row} — {mismatch.existingName} → {mismatch.importedName}
@@ -76,12 +76,12 @@ export function ImportStudentsDrawer({ open, onOpenChange }: ImportStudentsDrawe
               </div>
             )}
             {importStudents.data.errors.length > 0 && (
-              <div className="rounded-lg border border-red-200 bg-red-50 p-3 space-y-1 dark:bg-red-950 dark:border-red-900">
-                <div className="flex items-center gap-2 text-sm font-medium text-red-700 dark:text-red-400">
+              <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-3 space-y-1 dark:bg-destructive/20 dark:border-destructive/30">
+                <div className="flex items-center gap-2 text-sm font-medium text-destructive dark:text-destructive">
                   <AlertTriangle className="h-4 w-4" />
                   {importStudents.data.errors.length} row(s) skipped
                 </div>
-                <ul className="text-xs text-red-700 dark:text-red-400 space-y-0.5">
+                <ul className="text-xs text-destructive dark:text-destructive space-y-0.5">
                   {importStudents.data.errors.map((err, i) => (
                     <li key={i}>Row {err.row}: {err.reason}</li>
                   ))}

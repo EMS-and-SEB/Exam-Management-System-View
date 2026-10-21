@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useParams } from 'react-router-dom';
-import { Search, Loader2, Unlink, BookOpen, Layers } from 'lucide-react';
+import { Search, Loader2, Unlink, BookOpen, Layers, MailPlus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { useAuthStore } from '@/store/auth.store';
@@ -15,6 +17,7 @@ import {
   useEnrollStudentInCohort,
   useRemoveStudentFromCourse,
   useRemoveStudentFromCohort,
+  useActivateStudent,
 } from './hooks';
 
 type SearchResult = { id: string; name: string; type: 'Course' | 'Cohort' };
@@ -32,6 +35,9 @@ export function StudentDetailPage() {
   const { data: cohorts } = useCohorts(canManage);
 
   const [search, setSearch] = useState('');
+  const [activationOpen, setActivationOpen] = useState(false);
+  const [activationEmail, setActivationEmail] = useState('');
+  const activateStudent = useActivateStudent();
 
   const enrollInCourse = useEnrollStudentInCourse(studentDirectoryId, student?.studentId ?? '');
   const enrollInCohort = useEnrollStudentInCohort(studentDirectoryId, student?.studentId ?? '');
@@ -62,9 +68,64 @@ export function StudentDetailPage() {
     }
   };
 
+  const handleActivation = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    activateStudent.mutate(
+      { id: studentDirectoryId, email: activationEmail.trim() },
+      { onSuccess: () => { setActivationEmail(''); setActivationOpen(false); } },
+    );
+  };
+
   return (
     <div>
-      <PageHeader title={student?.name ?? 'Student'} subtitle={student?.studentId} backTo="/students" />
+      <PageHeader
+        title={student?.name ?? 'Student'}
+        subtitle={student?.studentId}
+        backTo="/students"
+        actions={canManage && student && !student.isActive ? (
+          <Button onClick={() => setActivationOpen(true)}>
+            <MailPlus className="h-4 w-4" />
+            Activate Student Account
+          </Button>
+        ) : undefined}
+      />
+
+      {canManage && student?.isActive && (
+        <p className="mb-6 text-sm text-muted-foreground">Student portal account is active.</p>
+      )}
+
+      <Dialog open={activationOpen} onOpenChange={setActivationOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Send Student Activation Invitation</DialogTitle>
+            <DialogDescription>
+              Enter the student’s institutional email address. The address is saved to the directory after the student activates the account.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleActivation} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="student-activation-email">Institutional email</Label>
+              <Input
+                id="student-activation-email"
+                type="email"
+                required
+                autoComplete="email"
+                value={activationEmail}
+                onChange={(event) => setActivationEmail(event.target.value)}
+                placeholder="student@aau.edu.et"
+              />
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setActivationOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={activateStudent.isPending}>
+                {activateStudent.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Send Invitation'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {canManage && (
         <div className="relative mb-6 max-w-md">

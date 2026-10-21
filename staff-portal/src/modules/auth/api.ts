@@ -7,6 +7,8 @@ export const authApi = {
   me: () => http.get('/auth/me').then((r) => r.data),
   requestPasswordReset: (email: string) =>
     http.post('/auth/staff/password-reset/request', { email }),
+  requestStudentActivation: (studentId: string) =>
+    http.post('/auth/student-activation/request', { studentId }),
   verifyPasswordReset: (email: string, code: string) =>
     http.post('/auth/staff/password-reset/verify', { email, code }).then((r) => r.data),
   confirmPasswordReset: (resetToken: string, newPassword: string) =>

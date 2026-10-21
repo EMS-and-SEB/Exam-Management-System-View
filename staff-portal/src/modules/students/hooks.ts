@@ -54,6 +54,18 @@ export function useUpdateStudent() {
   });
 }
 
+export function useActivateStudent() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, email }: { id: string; email: string }) => studentsApi.activate(id, email),
+    onSuccess: (_data, { id }) => {
+      queryClient.invalidateQueries({ queryKey: STUDENTS_KEY });
+      queryClient.invalidateQueries({ queryKey: [...STUDENTS_KEY, id] });
+      toast.success('Activation invitation sent.');
+    },
+  });
+}
+
 export function useImportStudents() {
   const queryClient = useQueryClient();
   return useMutation({

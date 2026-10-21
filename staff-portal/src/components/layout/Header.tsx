@@ -32,7 +32,7 @@ export function Header({ onOpenProfile }: { onOpenProfile: () => void }) {
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink render={<Link to="/dashboard" />}>
-                {portalTitleByRole[user.role]}
+                {user.role === 'STUDENT' ? 'Student Portal' : portalTitleByRole[user.role]}
               </BreadcrumbLink>
             </BreadcrumbItem>
             {activeNavItem && (
@@ -69,7 +69,7 @@ export function Header({ onOpenProfile }: { onOpenProfile: () => void }) {
           className="rounded-full outline-none ring-offset-background transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           <Avatar className="h-8 w-8">
-            <AvatarFallback className="border-1 border-blue-500 text-violet-500 dark:text-violet-300">{initials}</AvatarFallback>
+            <AvatarFallback className="border-1 border-primary text-primary">{initials}</AvatarFallback>
           </Avatar>
         </button>
       </div>

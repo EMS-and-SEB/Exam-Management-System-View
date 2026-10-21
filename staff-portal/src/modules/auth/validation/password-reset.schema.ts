@@ -1,6 +1,11 @@
 import { z } from 'zod';
 
-export const requestResetSchema = z.object({ email: z.string().email('Enter a valid email address.') });
+const accountIdentifierSchema = z.string().refine(
+  (identifier) => /^UGR\/\d{4}\/\d{2}$/i.test(identifier.trim()) || z.string().email().safeParse(identifier).success,
+  'Enter a valid staff email address or student ID (UGR/1234/12).',
+);
+
+export const requestResetSchema = z.object({ email: accountIdentifierSchema });
 export const verifyOtpSchema = z.object({ code: z.string().length(6, 'Enter the 6-digit code.') });
 export const newPasswordSchema = z
   .object({

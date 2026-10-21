@@ -1,30 +1,29 @@
-import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import {
-  GraduationCap,
-  Mail,
-  Lock,
+  AlertCircle,
+  ArrowRight,
   Eye,
   EyeOff,
-  ArrowRight,
   Loader2,
-  AlertCircle,
+  Lock,
+  Mail,
 } from 'lucide-react';
+import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { Link } from 'react-router-dom';
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Field,
-  FieldLabel,
   FieldError,
+  FieldLabel,
 } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
 
-import { loginSchema, type LoginFormValues } from './validation/login.schema';
 import { useLogin } from './hooks';
+import { loginSchema, type LoginFormValues } from './validation/login.schema';
 
 export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -42,7 +41,7 @@ export function LoginPage() {
           <CardContent className="pt-8 pb-6 px-6">
             <div className="flex flex-col items-center text-center mb-6">
               <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
-                <GraduationCap className="h-6 w-6 text-primary" />
+                <img src="/aauLogo.png" alt="Addis Ababa University" className="h-10 w-10 object-contain" />
               </div>
 
               <h1 className="text-lg font-semibold">
@@ -50,7 +49,7 @@ export function LoginPage() {
               </h1>
 
               <p className="text-sm text-muted-foreground mt-1">
-                Sign in to access the Staff Portal.
+                Sign in to the Exam Management System.
               </p>
             </div>
 
@@ -64,14 +63,16 @@ export function LoginPage() {
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel className="text-xs font-semibold uppercase tracking-wide">
-                      Email
+                      User Name
                     </FieldLabel>
 
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
 
                       <Input
-                        placeholder="Enter your email"
+                        type="text"
+                        autoComplete="username"
+                        placeholder="Enter your user name"
                         className="pl-9"
                         {...field}
                         aria-invalid={fieldState.invalid}
@@ -158,6 +159,12 @@ export function LoginPage() {
                 )}
               </Button>
             </form>
+
+            <div className="mt-4 text-center">
+              <Link to="/activate-account" className="text-sm text-primary hover:underline">
+                Activate Student Account
+              </Link>
+            </div>
 
             <p className="text-xs text-muted-foreground text-center mt-6 pt-4 border-t">
               Staff accounts are provisioned by the Exam Administrator.

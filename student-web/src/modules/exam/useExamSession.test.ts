@@ -34,6 +34,7 @@ const session: StudentLoginResponse = {
       examId: "e1",
       sourceQuestionId: null,
       type: "MULTIPLE_CHOICE",
+      correctAnswerCount: 1,
       prompt: "Pick one",
       options: [
         { id: "opt-a", text: "A" },
@@ -47,6 +48,7 @@ const session: StudentLoginResponse = {
       examId: "e1",
       sourceQuestionId: null,
       type: "WORKOUT",
+      correctAnswerCount: 1,
       prompt: "Solve",
       options: null,
       points: 5,
@@ -125,6 +127,54 @@ describe("useExamSession autosave trigger", () => {
       examQuestionId: "q-workout",
       responseData: "42",
     });
+  });
+
+  it("keeps an answer and does not submit when saving fails, with an explicit retry", async () => {
+    vi.useFakeTimers();
+    mockedSave.mockRejectedValue(networkError());
+    const { result } = renderHook(() => useExamSession());
+
+    act(() => result.current.updateAnswer("q-mc", "opt-a"));
+    await flush();
+
+    expect(result.current.answers["q-mc"]).toBe("opt-a");
+    expect(result.current.offline).toBe(true);
+    expect(examApi.submitExam).not.toHaveBeenCalled();
+
+    for (const delay of [2_000, 4_000, 8_000, 16_000, 32_000]) {
+      act(() => vi.advanceTimersByTime(delay));
+      await flush();
+    }
+    expect(mockedSave).toHaveBeenCalledTimes(6);
+    expect(result.current.saveStatus["q-mc"]).toBe("error");
+    expect(result.current.offline).toBe(false);
+
+    act(() => result.current.retryAnswer("q-mc"));
+    await flush();
+    expect(mockedSave).toHaveBeenCalledTimes(7);
+    expect(mockedSave).toHaveBeenLastCalledWith("sess-1", {
+      examQuestionId: "q-mc",
+      responseData: "opt-a",
+    });
+    expect(result.current.offline).toBe(true);
+    expect(examApi.submitExam).not.toHaveBeenCalled();
+  });
+
+  it("reports a validation rejection without submitting or discarding the answer", async () => {
+    mockedSave.mockRejectedValueOnce(
+      Object.assign(new Error("This question does not belong to the session exam."), {
+        response: { status: 400 },
+      }),
+    );
+    const { result } = renderHook(() => useExamSession());
+
+    act(() => result.current.updateAnswer("q-mc", "opt-a"));
+    await flush();
+
+    expect(result.current.answers["q-mc"]).toBe("opt-a");
+    expect(result.current.saveStatus["q-mc"]).toBe("error");
+    expect(mockedSave).toHaveBeenCalledTimes(1);
+    expect(examApi.submitExam).not.toHaveBeenCalled();
   });
 });
 
@@ -305,5 +355,31 @@ describe("session storage persistence", () => {
     useExamSessionStore.setState({ hasHydrated: true });
     expect(useSessionStore.getState().hasHydrated).toBe(true);
     expect(useExamSessionStore.getState().hasHydrated).toBe(true);
+  });
+});
+
+describe("server answer reconciliation", () => {
+  it("restores saved values by question id and removes stale answers for blank questions", () => {
+    useExamSessionStore.getState().setAnswer("q-mc", "old-option");
+    useExamSessionStore.getState().setAnswer("q-workout", "stale response");
+
+    useExamSessionStore.getState().reconcileAnswers(
+      [{ examQuestionId: "q-mc", responseData: "saved-option" }],
+      ["q-mc", "q-workout"],
+    );
+
+    expect(useExamSessionStore.getState().answers).toEqual({ "q-mc": "saved-option" });
+  });
+
+  it("keeps a local answer while its save is pending", () => {
+    useExamSessionStore.getState().setAnswer("q-mc", "new-option");
+    useExamSessionStore.getState().setSaveStatus("q-mc", "saving");
+
+    useExamSessionStore.getState().reconcileAnswers(
+      [{ examQuestionId: "q-mc", responseData: "older-saved-option" }],
+      ["q-mc"],
+    );
+
+    expect(useExamSessionStore.getState().answers["q-mc"]).toBe("new-option");
   });
 });

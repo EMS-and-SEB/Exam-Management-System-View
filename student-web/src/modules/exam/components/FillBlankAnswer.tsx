@@ -17,7 +17,7 @@ export function FillBlankAnswer({ question, value, onChange, disabled }: Props) 
   );
 
   const blankCount = parts.length - 1;
-  const current = value ?? Array.from({ length: blankCount }, () => "");
+  const current = value?.map((answer) => answer ?? "") ?? Array.from({ length: blankCount }, () => "");
 
   const setBlank = (i: number, text: string) => {
     const next = [...current];
@@ -37,6 +37,10 @@ export function FillBlankAnswer({ question, value, onChange, disabled }: Props) 
         <Input
           key={`blank-${i}`}
           data-testid={`fill-blank-${i}`}
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          spellCheck={false}
           value={current[i] ?? ""}
           disabled={disabled}
           onChange={(e) => setBlank(i, e.target.value)}

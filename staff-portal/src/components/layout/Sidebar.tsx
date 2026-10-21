@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, ShieldCheck, LogOut } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
   SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarRail,
@@ -16,7 +16,7 @@ export function AppSidebar() {
   const user = useAuthStore((s) => s.user);
   const logout = useLogout();
 
-  if (!user) return null;
+  if (!user || user.role === 'STUDENT') return null;
 
   const items = getNavItems(user.role);
   const isCollapsed = state === 'collapsed';
@@ -29,7 +29,7 @@ export function AppSidebar() {
             onClick={isCollapsed ? toggleSidebar : undefined}
             className="group/logo relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground"
           >
-                        <ShieldCheck className="h-4 w-4 text-green-500 transition-opacity group-hover/logo:opacity-0" />
+            <img src="/aauLogo.png" alt="AAU" className="h-7 w-7 rounded-full object-contain transition-opacity group-hover/logo:opacity-0" />
             {isCollapsed && (
               <ChevronRight className="absolute h-4 w-4 opacity-0 transition-opacity group-hover/logo:opacity-100" />
             )}

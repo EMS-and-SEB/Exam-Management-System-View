@@ -18,6 +18,7 @@ type StatusOption = 'ALL' | 'ACTIVE' | 'ARCHIVED';
 export function CohortListPage() {
   const navigate = useNavigate();
   const role = useAuthStore((s) => s.user!.role);
+  const viewerRole = role === 'STUDENT' ? 'EXIT_EXAM_COORDINATOR' : role;
   const isSuperAdmin = role === 'SUPER_ADMIN';
   const isAdmin = isSuperAdmin || role === 'UNIT_ADMIN';
 
@@ -41,7 +42,7 @@ export function CohortListPage() {
   });
 
   const columns = getCohortColumns({
-    viewerRole: role,
+    viewerRole,
     onEdit: (cohort) => { setEditingCohort(cohort); setFormOpen(true); },
     onToggleArchive: setArchiveTarget,
   });

@@ -51,6 +51,7 @@ describe("useExamPolling", () => {
       status: "IN_PROGRESS",
       endsAt: "2026-06-01T00:00:00.000Z",
       questions: [],
+      answers: [],
     });
     const client = makeClient();
     renderHook(() => useExamPolling({ enabled: true }), {
@@ -61,6 +62,27 @@ describe("useExamPolling", () => {
       expect(useExamSessionStore.getState().endsAt).toBe("2026-06-01T00:00:00.000Z"),
     );
     expect(useExamSessionStore.getState().summary).toBeNull();
+    client.clear();
+  });
+
+  it("reconciles answers from the current session poll by exam question ID", async () => {
+    useExamSessionStore.getState().setAnswer("question-saved", "stale");
+    useExamSessionStore.getState().setAnswer("question-blank", "stale value");
+    mockedGet.mockResolvedValue({
+      status: "IN_PROGRESS",
+      endsAt: "2026-06-01T00:00:00.000Z",
+      questions: [
+        { id: "question-saved" },
+        { id: "question-blank" },
+      ] as never,
+      answers: [{ examQuestionId: "question-saved", responseData: "saved" }],
+    });
+    const client = makeClient();
+    renderHook(() => useExamPolling({ enabled: true }), { wrapper: wrapper(client) });
+
+    await waitFor(() =>
+      expect(useExamSessionStore.getState().answers).toEqual({ "question-saved": "saved" }),
+    );
     client.clear();
   });
 
@@ -79,6 +101,49 @@ describe("useExamPolling", () => {
     await waitFor(() =>
       expect(useExamSessionStore.getState().summary?.status).toBe("FORCE_SUBMITTED"),
     );
+    client.clear();
+  });
+
+  it("keeps an early authenticated session on the question-free waiting state", async () => {
+    mockedGet.mockResolvedValue({
+      status: "NOT_STARTED",
+      scheduledStart: "2026-06-01T00:01:00.000Z",
+      serverNow: "2026-06-01T00:00:00.000Z",
+    });
+    const client = makeClient();
+    renderHook(() => useExamPolling({ enabled: true }), { wrapper: wrapper(client) });
+
+    await waitFor(() =>
+      expect(useSessionStore.getState().session).toMatchObject({
+        status: "NOT_STARTED",
+        scheduledStart: "2026-06-01T00:01:00.000Z",
+        examQuestions: [],
+      }),
+    );
+    expect(useExamSessionStore.getState().summary).toBeNull();
+    client.clear();
+  });
+
+  it("switches the persisted waiting session to the active exam from the server poll", async () => {
+    mockedGet.mockResolvedValue({
+      status: "IN_PROGRESS",
+      scheduledStart: null,
+      serverNow: "2026-06-01T00:01:00.000Z",
+      endsAt: "2026-06-01T01:01:00.000Z",
+      questions: [{ id: "question-1" }] as never,
+      answers: [],
+    });
+    const client = makeClient();
+    renderHook(() => useExamPolling({ enabled: true }), { wrapper: wrapper(client) });
+
+    await waitFor(() =>
+      expect(useSessionStore.getState().session).toMatchObject({
+        status: "IN_PROGRESS",
+        endsAt: "2026-06-01T01:01:00.000Z",
+        examQuestions: [{ id: "question-1" }],
+      }),
+    );
+    expect(useExamSessionStore.getState().endsAt).toBe("2026-06-01T01:01:00.000Z");
     client.clear();
   });
 });

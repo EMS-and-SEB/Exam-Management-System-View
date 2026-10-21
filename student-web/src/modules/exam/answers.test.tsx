@@ -5,7 +5,7 @@ import userEvent from "@testing-library/user-event";
 import { QuestionRenderer } from "./components/QuestionRenderer";
 import type { AnswerValue, ExamQuestion } from "./types";
 
-const base = { examId: "e1", sourceQuestionId: null, points: 1, order: 1 };
+const base = { examId: "e1", sourceQuestionId: null, points: 1, order: 1, correctAnswerCount: 1, options: null };
 
 /** Controlled harness: feeds the emitted value back so controlled inputs work. */
 function Harness({
@@ -68,7 +68,7 @@ describe("answer components emit the required responseData shape", () => {
     expect(onChange).toHaveBeenLastCalledWith("opt-a");
   });
 
-  it("MULTIPLE_SELECT emits an array of option ids", async () => {
+  it("MULTIPLE_CHOICE emits an array when more than one correct answer is configured", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
     render(
@@ -76,7 +76,8 @@ describe("answer components emit the required responseData shape", () => {
         question={{
           ...base,
           id: "q1",
-          type: "MULTIPLE_SELECT",
+          type: "MULTIPLE_CHOICE",
+          correctAnswerCount: 2,
           prompt: "p",
           options: [
             { id: "opt-a", text: "A" },
@@ -141,6 +142,28 @@ describe("answer components emit the required responseData shape", () => {
     expect(onChange).toHaveBeenLastCalledWith(["blue", "green"]);
   });
 
+  it("FILL_BLANK starts empty and disables browser autofill and text correction", () => {
+    render(
+      <Harness
+        question={{
+          ...base,
+          id: "q1",
+          type: "FILL_BLANK",
+          prompt: "Sky is {{0}}.",
+          blanks: 1,
+        }}
+        onChange={vi.fn()}
+      />,
+    );
+
+    const blank = screen.getByTestId("fill-blank-0");
+    expect(blank).toHaveValue("");
+    expect(blank).toHaveAttribute("autocomplete", "off");
+    expect(blank).toHaveAttribute("autocorrect", "off");
+    expect(blank).toHaveAttribute("autocapitalize", "off");
+    expect(blank).toHaveAttribute("spellcheck", "false");
+  });
+
   it("WORKOUT emits a free-text string", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
@@ -154,6 +177,22 @@ describe("answer components emit the required responseData shape", () => {
     expect(onChange).toHaveBeenLastCalledWith("42");
   });
 
+  it("WORKOUT starts empty and disables browser autofill and text correction", () => {
+    render(
+      <Harness
+        question={{ ...base, id: "q1", type: "WORKOUT", prompt: "Solve" }}
+        onChange={vi.fn()}
+      />,
+    );
+
+    const answer = screen.getByTestId("workout-answer");
+    expect(answer).toHaveValue("");
+    expect(answer).toHaveAttribute("autocomplete", "off");
+    expect(answer).toHaveAttribute("autocorrect", "off");
+    expect(answer).toHaveAttribute("autocapitalize", "off");
+    expect(answer).toHaveAttribute("spellcheck", "false");
+  });
+
   /**
    * Regression for the ExamLanding wiring: QuestionRenderer emits
    * onChange(value, questionId), but the statement's updateAnswer is
@@ -162,7 +201,7 @@ describe("answer components emit the required responseData shape", () => {
    */
   it("QuestionRenderer emits onChange as (value, questionId)", async () => {
     const user = userEvent.setup();
-    const onChange = vi.fn<[unknown, string]>();
+    const onChange = vi.fn<(value: AnswerValue, questionId: string) => void>();
 
     render(
       <QuestionRenderer

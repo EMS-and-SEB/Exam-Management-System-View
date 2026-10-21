@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 // --- Existing Auth & Guard Imports ---
 import { LoginPage } from '@/modules/auth/LoginPage';
+import { ActivateAccountPage } from '@/modules/auth/ActivateAccountPage';
 import { ForgotPasswordPage, SetPasswordPage } from '@/modules/auth/PasswordResetPage';
 import { RequireAuth } from '@/components/guards/RequireAuth';
 import { RequireRole } from '@/components/guards/RequireRole';
@@ -26,6 +27,7 @@ import { ExamGradingPage } from '@/modules/grading/ExamGradingPage';
 import { AuditLogPage } from '@/modules/audit/AuditLogPage';
 import { RetentionPolicyPage } from '@/modules/retention-policy/RetentionPolicyPage';
 import { DashboardPage } from '@/modules/dashboard/DashboardPage';
+import { StudentDashboardPage } from '@/modules/dashboard/StudentDashboardPage';
 import { InvigilationRoute } from '@/modules/invigilation/InvigilationRoute';
 import { ResultsPage } from '@/modules/results/ResultsPage';
 import { CourseOrCohortResult } from '@/modules/results/CourseOrCohortResult';
@@ -44,6 +46,7 @@ const router = createBrowserRouter([
 
   // 2. Public Auth Routes (Shared by Staff and Students per lead feedback)
   { path: '/login', element: <LoginPage />, errorElement: <RouteErrorBoundary /> },
+  { path: '/activate-account', element: <ActivateAccountPage />, errorElement: <RouteErrorBoundary /> },
   { path: '/forgot-password', element: <ForgotPasswordPage /> },
   { path: '/set-password', element: <SetPasswordPage /> },
 
@@ -52,6 +55,10 @@ const router = createBrowserRouter([
     element: <RequireAuth />,
     errorElement: <RouteErrorBoundary />,
     children: [
+      {
+        element: <RequireRole roles={['STUDENT']} />,
+        children: [{ path: '/student-dashboard', element: <StudentDashboardPage /> }],
+      },
       // Invigilation routes (accessible to any authenticated user)
       { path: '/invigilation', element: <InvigilationRoute /> },
       { path: '/invigilation/:id', element: <InvigilationRoute /> },

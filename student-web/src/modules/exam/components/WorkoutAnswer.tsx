@@ -14,6 +14,10 @@ export function WorkoutAnswer({ value, onChange, disabled }: Props) {
     <textarea
       id={id}
       data-testid="workout-answer"
+      autoComplete="off"
+      autoCorrect="off"
+      autoCapitalize="off"
+      spellCheck={false}
       value={value}
       disabled={disabled}
       onChange={(e) => onChange(e.target.value)}

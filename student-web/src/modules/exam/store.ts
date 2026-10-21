@@ -29,6 +29,7 @@ interface ExamState {
   markedForReview: Record<string, boolean>;
 
   setAnswer: (questionId: string, value: AnswerValue) => void;
+  reconcileAnswers: (serverAnswers: { examQuestionId: string; responseData: AnswerValue }[], questionIds: string[]) => void;
   setSaveStatus: (questionId: string, status: SaveStatus) => void;
   setCurrentIndex: (index: number) => void;
   setSummary: (summary: SessionSummary | null) => void;
@@ -69,6 +70,20 @@ export const useExamSessionStore = create<ExamState>()(
       ...initial,
       setAnswer: (questionId, value) =>
         set((s) => ({ answers: { ...s.answers, [questionId]: value } })),
+      reconcileAnswers: (serverAnswers, questionIds) =>
+        set((s) => {
+          const persisted = new Map(serverAnswers.map(({ examQuestionId, responseData }) => [examQuestionId, responseData]));
+          const answers: Record<string, AnswerValue> = {};
+          for (const questionId of questionIds) {
+            const status = s.saveStatus[questionId] ?? "idle";
+            if ((status === "saving" || status === "error" || status === "offline") && questionId in s.answers) {
+              answers[questionId] = s.answers[questionId];
+            } else if (persisted.has(questionId)) {
+              answers[questionId] = persisted.get(questionId)!;
+            }
+          }
+          return { answers };
+        }),
       setSaveStatus: (questionId, status) =>
         set((s) => ({ saveStatus: { ...s.saveStatus, [questionId]: status } })),
       setCurrentIndex: (index) => set({ currentIndex: index }),

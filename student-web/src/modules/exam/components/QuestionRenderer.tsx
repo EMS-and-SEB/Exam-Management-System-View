@@ -1,7 +1,6 @@
 import type { AnswerValue, ExamQuestion } from "../types";
 import { TrueFalseAnswer } from "./TrueFalseAnswer";
 import { MultipleChoiceAnswer } from "./MultipleChoiceAnswer";
-import { MultipleSelectAnswer } from "./MultipleSelectAnswer";
 import { MatchingAnswer } from "./MatchingAnswer";
 import { FillBlankAnswer } from "./FillBlankAnswer";
 import { WorkoutAnswer } from "./WorkoutAnswer";
@@ -13,6 +12,18 @@ interface Props {
   disabled?: boolean;
 }
 
+function isStringArray(value: AnswerValue): value is string[] {
+  return Array.isArray(value) && value.every((item): item is string => typeof item === "string");
+}
+
+function isMatchingPairs(value: AnswerValue): value is { leftId: string; rightId: string }[] {
+  return Array.isArray(value) && value.every(
+    (item) => typeof item === "object" && item !== null &&
+      "leftId" in item && typeof item.leftId === "string" &&
+      "rightId" in item && typeof item.rightId === "string",
+  );
+}
+
 /** Picks the right pure controlled input per question type. */
 export function QuestionRenderer({ question, value, onChange, disabled }: Props) {
   switch (question.type) {
@@ -20,7 +31,7 @@ export function QuestionRenderer({ question, value, onChange, disabled }: Props)
       return (
         <TrueFalseAnswer
           question={question}
-          value={(value as boolean) ?? null}
+          value={typeof value === "boolean" ? value : null}
           disabled={disabled}
           onChange={(v) => onChange(v, question.id)}
         />
@@ -29,16 +40,7 @@ export function QuestionRenderer({ question, value, onChange, disabled }: Props)
       return (
         <MultipleChoiceAnswer
           question={question}
-          value={typeof value === "string" ? value : null}
-          disabled={disabled}
-          onChange={(v) => onChange(v, question.id)}
-        />
-      );
-    case "MULTIPLE_SELECT":
-      return (
-        <MultipleSelectAnswer
-          question={question}
-          value={Array.isArray(value) ? value : []}
+          value={typeof value === "string" || isStringArray(value) ? value : null}
           disabled={disabled}
           onChange={(v) => onChange(v, question.id)}
         />
@@ -47,7 +49,7 @@ export function QuestionRenderer({ question, value, onChange, disabled }: Props)
       return (
         <MatchingAnswer
           question={question}
-          value={Array.isArray(value) ? value : []}
+          value={isMatchingPairs(value) ? value : []}
           disabled={disabled}
           onChange={(v) => onChange(v, question.id)}
         />
@@ -56,7 +58,7 @@ export function QuestionRenderer({ question, value, onChange, disabled }: Props)
       return (
         <FillBlankAnswer
           question={question}
-          value={Array.isArray(value) ? value : null}
+          value={isStringArray(value) ? value : null}
           disabled={disabled}
           onChange={(v) => onChange(v, question.id)}
         />

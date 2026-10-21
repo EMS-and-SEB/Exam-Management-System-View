@@ -33,7 +33,7 @@ function SubmittedAnswer({ answer }: { answer: AnswerDetail }) {
   const options = answer.options as AnswerOption[] | MatchingOptions | undefined;
   const answerColor = answer.type === 'WORKOUT'
     ? ''
-    : answer.isCorrect ? 'text-blue-600' : 'text-red-500';
+    : answer.isCorrect ? 'text-primary' : 'text-destructive';
 
   if (answer.type === 'MATCHING' && Array.isArray((options as MatchingOptions | undefined)?.left)) {
     const matchingOptions = options as MatchingOptions;
@@ -51,7 +51,7 @@ function SubmittedAnswer({ answer }: { answer: AnswerDetail }) {
         {pairs.length > 0 ? pairs.map((pair, index) => (
           <p
             key={`${pair.leftId}-${pair.rightId}-${index}`}
-            className={correctPairs.has(`${pair.leftId}:${pair.rightId}`) ? 'text-blue-600' : 'text-red-400'}
+            className={correctPairs.has(`${pair.leftId}:${pair.rightId}`) ? 'text-primary' : 'text-destructive'}
           >
             <span className="font-medium">{leftById.get(pair.leftId) ?? pair.leftId}</span>
             <span className="mx-2 text-muted-foreground">&rarr;</span>
@@ -62,10 +62,10 @@ function SubmittedAnswer({ answer }: { answer: AnswerDetail }) {
     );
   }
 
-  if ((answer.type === 'MULTIPLE_SELECT' || answer.type === 'MULTIPLE_CHOICE') && Array.isArray(options)) {
+  if (answer.type === 'MULTIPLE_CHOICE' && Array.isArray(options)) {
     const optionById = new Map(options.map((option) => [option.id, option.text]));
-    const selectedIds = answer.type === 'MULTIPLE_SELECT'
-      ? Array.isArray(answer.responseData) ? answer.responseData as string[] : []
+    const selectedIds = Array.isArray(answer.responseData)
+      ? answer.responseData as string[]
       : typeof answer.responseData === 'string' ? [answer.responseData] : [];
     const correctIds = new Set(
       Array.isArray(answer.correctAnswer)
@@ -78,7 +78,7 @@ function SubmittedAnswer({ answer }: { answer: AnswerDetail }) {
     return (
       <div className="space-y-1 text-sm">
         {selectedIds.length > 0 ? selectedIds.map((id) => (
-          <p key={id} className={correctIds.has(id) ? 'text-blue-600' : 'text-red-400'}>
+          <p key={id} className={correctIds.has(id) ? 'text-primary' : 'text-destructive'}>
             {optionById.get(id) ?? id}
           </p>
         )) : <span className="text-muted-foreground">No answer submitted.</span>}
@@ -94,10 +94,10 @@ function AnswerCard({ answer, onGrade, isPending }: { answer: AnswerDetail; onGr
   const isManual = answer.type === 'WORKOUT';
   const awardedPoints = answer.pointsAwarded ?? 0;
   const scoreColor = answer.isCorrect
-    ? 'text-green-700'
+    ? 'text-primary'
     : awardedPoints > 0
-      ? 'text-yellow-500'
-      : 'text-red-500';
+      ? 'text-destructive'
+      : 'text-destructive';
 
   const form = useForm<GradeAnswerValues>({
     resolver: zodResolver(gradeAnswerSchema),
