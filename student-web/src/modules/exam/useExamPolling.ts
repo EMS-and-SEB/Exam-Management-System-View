@@ -42,6 +42,8 @@ export function useExamPolling({ enabled }: { enabled: boolean }) {
     if (!data) return;
     if (isPollLive(data)) {
       setEndsAt(data.endsAt);
+    } else if (data.status === "NOT_STARTED") {
+      return;
     } else {
       setSummary(data);
     }

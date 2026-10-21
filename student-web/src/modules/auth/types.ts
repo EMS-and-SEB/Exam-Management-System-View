@@ -54,6 +54,10 @@ export interface StudentExam {
 export interface StudentLoginResponse {
   sessionToken: string;
   exam: StudentExam;
-  endsAt: string;
+  endsAt: string | null;
   examQuestions: StudentExamQuestion[];
+  startsAt?: string;
+  serverNow?: string;
+  durationMinutes?: number | null;
+  student?: { name: string; studentId: string };
 }
