@@ -12,10 +12,6 @@ import type { ExamQuestion } from "@/modules/exam/types";
 export function WaitingRoom() {
   const navigate = useNavigate();
 
-  // State - always initialized (hooks called in same order every render)
-  const [startsAt, setStartsAt] = useState<string | null>(null);
-  const [offsetMs, setOffsetMs] = useState<number | null>(null);
-
   // Hydration state from session store
   const sessionFromStore = useSessionStore((s) => s.session);
   const studentId = useSessionStore((s) => s.studentId);
@@ -23,6 +19,26 @@ export function WaitingRoom() {
   const clearSession = useSessionStore((s) => s.clearSession);
   const setEndsAt = useExamSessionStore((s) => s.setEndsAt);
   const hasHydrated = useSessionStore((s) => s.hasHydrated);
+
+  // State - initialized from sessionStore if available to prevent flicker
+  const [startsAt, setStartsAt] = useState<string | null>(
+    () => sessionFromStore?.startsAt ?? null
+  );
+  const [offsetMs, setOffsetMs] = useState<number | null>(() =>
+    sessionFromStore?.serverNow
+      ? Date.parse(sessionFromStore.serverNow) - Date.now()
+      : null
+  );
+
+  // Sync if hydrated after initial render
+  useEffect(() => {
+    if (!startsAt && sessionFromStore?.startsAt) {
+      setStartsAt(sessionFromStore.startsAt);
+    }
+    if (offsetMs === null && sessionFromStore?.serverNow) {
+      setOffsetMs(Date.parse(sessionFromStore.serverNow) - Date.now());
+    }
+  }, [sessionFromStore, startsAt, offsetMs]);
 
   // Stable session id - used in effect dependencies to avoid restarting poll
   const sessionId = sessionFromStore?.sessionToken;
@@ -64,6 +80,24 @@ export function WaitingRoom() {
           setOffsetMs(Date.parse(response.serverNow) - Date.now());
         }
 
+        // If session is already IN_PROGRESS (e.g. resumed from another tab)
+        if (
+          response.status === "IN_PROGRESS" &&
+          response.endsAt &&
+          Array.isArray(response.questions) &&
+          response.questions.length > 0
+        ) {
+          const newSession: StudentLoginResponse = {
+            ...sessionFromStore!,
+            endsAt: response.endsAt,
+            examQuestions: response.questions as ExamQuestion[],
+          };
+          setSession(newSession);
+          setEndsAt(response.endsAt);
+          navigate("/exam", { replace: true });
+          return;
+        }
+
         if (sessionFromStore?.endsAt && sessionFromStore?.examQuestions?.length) {
           navigate("/exam", { replace: true });
         }
@@ -76,7 +110,7 @@ export function WaitingRoom() {
     const interval = setInterval(poll, 5000);
 
     return () => clearInterval(interval);
-  }, [sessionId, clearSession, navigate]);
+  }, [sessionId, sessionFromStore, setSession, setEndsAt, clearSession, navigate]);
 
   const { isReady, remainingSeconds } = useServerCountdown(startsAt, offsetMs);
   const countdownLabel = isReady
